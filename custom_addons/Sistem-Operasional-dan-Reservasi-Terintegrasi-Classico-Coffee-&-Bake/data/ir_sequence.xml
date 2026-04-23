@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- IR Sequences for Auto-numbering -->
+        <record id="seq_classico_reservation" model="ir.sequence">
+            <field name="name">Classico Reservation Sequence</field>
+            <field name="code">classico.reservation</field>
+            <field name="prefix">RES</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_classico_shift_report" model="ir.sequence">
+            <field name="name">Classico Shift Report Sequence</field>
+            <field name="code">classico.shift.report</field>
+            <field name="prefix">SHIFT</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_classico_complaint" model="ir.sequence">
+            <field name="name">Classico Complaint Sequence</field>
+            <field name="code">classico.complaint</field>
+            <field name="prefix">TKT</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+    </data>
+</odoo>

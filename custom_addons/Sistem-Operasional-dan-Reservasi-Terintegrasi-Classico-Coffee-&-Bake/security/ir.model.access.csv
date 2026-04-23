@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_classico_reservation_admin,classico.reservation.admin,model_classico_reservation,base.group_user,1,1,1,1
+access_classico_reservation_public,classico.reservation.public,model_classico_reservation,base.group_public,1,0,1,0
+access_classico_table_user,classico.table.user,model_classico_table,base.group_user,1,1,1,0
+access_classico_table_manager,classico.table.manager,model_classico_table,base.group_system,1,1,1,1
+access_classico_shift_user,classico.shift.report.user,model_classico_shift_report,base.group_user,1,1,1,0
+access_classico_shift_manager,classico.shift.report.manager,model_classico_shift_report,base.group_system,1,1,1,1
+access_classico_complaint_user,classico.complaint.user,model_classico_complaint,base.group_user,1,1,1,0
+access_classico_complaint_manager,classico.complaint.manager,model_classico_complaint,base.group_system,1,1,1,1

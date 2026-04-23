@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_classico_reservation_tree" model="ir.ui.view">
+        <field name="name">classico.reservation.tree</field>
+        <field name="model">classico.reservation</field>
+        <field name="arch" type="xml">
+            <tree string="Reservasi" decoration-success="state=='confirmed'" 
+                  decoration-info="state=='arrived'" decoration-muted="state=='cancelled'">
+                <field name="name"/>
+                <field name="customer_name"/>
+                <field name="customer_phone"/>
+                <field name="reservation_date"/>
+                <field name="reservation_time" widget="float_time"/>
+                <field name="guest_count"/>
+                <field name="table_id"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state=='confirmed'"
+                       decoration-info="state=='arrived'"
+                       decoration-warning="state=='draft'"
+                       decoration-danger="state=='cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_classico_reservation_form" model="ir.ui.view">
+        <field name="name">classico.reservation.form</field>
+        <field name="model">classico.reservation</field>
+        <field name="arch" type="xml">
+            <form string="Reservasi">
+                <header>
+                    <button name="action_confirm" string="Konfirmasi" type="object" 
+                            invisible="state != 'draft'" class="oe_highlight"/>
+                    <button name="action_arrive" string="Pelanggan Datang" type="object" 
+                            invisible="state != 'confirmed'" class="oe_highlight"/>
+                    <button name="action_done" string="Selesai" type="object" 
+                            invisible="state != 'arrived'" class="oe_highlight"/>
+                    <button name="action_cancel" string="Batalkan" type="object" 
+                            invisible="state not in ['draft', 'confirmed']" class="btn-secondary"/>
+                    <button name="action_reset_to_draft" string="Reset ke Draft" type="object" 
+                            invisible="state != 'cancelled'" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,arrived,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informasi Pelanggan">
+                            <field name="customer_name" required="1"/>
+                            <field name="customer_phone" widget="phone" required="1"/>
+                            <field name="guest_count" required="1"/>
+                        </group>
+                        <group string="Detail Reservasi">
+                            <field name="reservation_date" required="1"/>
+                            <field name="reservation_time" widget="float_time" required="1"/>
+                            <field name="table_id" options="{'no_create': True}"/>
+                            <field name="created_by" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Permintaan Khusus">
+                        <field name="special_request" nolabel="1" placeholder="Contoh: Dekat jendela, high chair untuk anak, dll."/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_classico_reservation_kanban" model="ir.ui.view">
+        <field name="name">classico.reservation.kanban</field>
+        <field name="model">classico.reservation</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="customer_name"/>
+                <field name="reservation_date"/>
+                <field name="reservation_time"/>
+                <field name="guest_count"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <strong><field name="name"/></strong>
+                                <ul>
+                                    <li><field name="customer_name"/></li>
+                                    <li><field name="reservation_date"/> - <field name="reservation_time" widget="float_time"/></li>
+                                    <li>Tamu: <field name="guest_count"/></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_classico_reservation_search" model="ir.ui.view">
+        <field name="name">classico.reservation.search</field>
+        <field name="model">classico.reservation</field>
+        <field name="arch" type="xml">
+            <search string="Cari Reservasi">
+                <field name="name"/>
+                <field name="customer_name"/>
+                <field name="customer_phone"/>
+                <field name="reservation_date"/>
+                <filter string="Hari Ini" name="today" 
+                        domain="[('reservation_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Minggu Ini" name="this_week" 
+                        domain="[('reservation_date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="Arrived" name="arrived" domain="[('state', '=', 'arrived')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Tanggal" name="group_date" context="{'group_by': 'reservation_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_classico_reservation" model="ir.actions.act_window">
+        <field name="name">Manajemen Reservasi</field>
+        <field name="res_model">classico.reservation</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat reservasi pelanggan baru
+            </p>
+            <p>
+                Sistem manajemen reservasi menggantikan pencatatan manual via WhatsApp.
+                Klik tombol 'Create' untuk menambah reservasi baru.
+            </p>
+        </field>
+    </record>
+
+    <!-- Archive Action -->
+    <record id="action_classico_reservation_archive" model="ir.actions.act_window">
+        <field name="name">Histori Reservasi</field>
+        <field name="res_model">classico.reservation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', 'in', ['done', 'cancelled'])]</field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_classico_reservation"
+              name="Manajemen Reservasi"
+              parent="menu_classico_root"
+              action="action_classico_reservation"
+              sequence="10"/>
+
+    <menuitem id="menu_classico_archive_reservation"
+              name="Histori Reservasi"
+              parent="menu_classico_archive"
+              action="action_classico_reservation_archive"
+              sequence="10"/>
+</odoo>

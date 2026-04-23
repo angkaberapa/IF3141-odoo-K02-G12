@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_classico_shift_report_tree" model="ir.ui.view">
+        <field name="name">classico.shift.report.tree</field>
+        <field name="model">classico.shift.report</field>
+        <field name="arch" type="xml">
+            <tree string="Laporan Shift" decoration-info="state=='submitted'" 
+                  decoration-success="state=='reviewed'" decoration-muted="state=='draft'">
+                <field name="name"/>
+                <field name="report_date"/>
+                <field name="shift_type"/>
+                <field name="division"/>
+                <field name="submitted_by"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state=='draft'"
+                       decoration-info="state=='submitted'"
+                       decoration-success="state=='reviewed'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View dengan template berbeda per divisi (OW-04) -->
+    <record id="view_classico_shift_report_form" model="ir.ui.view">
+        <field name="name">classico.shift.report.form</field>
+        <field name="model">classico.shift.report</field>
+        <field name="arch" type="xml">
+            <form string="Laporan Shift">
+                <header>
+                    <button name="action_submit" string="Submit Laporan" type="object" 
+                            invisible="state != 'draft'" class="oe_highlight"/>
+                    <button name="action_review" string="Review Laporan" type="object" 
+                            invisible="state != 'submitted'" class="oe_highlight" groups="base.group_system"/>
+                    <button name="action_reset_to_draft" string="Reset ke Draft" type="object" 
+                            invisible="state not in ['submitted', 'reviewed']" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,reviewed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informasi Dasar">
+                            <field name="report_date" required="1"/>
+                            <field name="shift_type" required="1"/>
+                            <field name="division" required="1"/>
+                        </group>
+                        <group string="Status Submit">
+                            <field name="submitted_by" readonly="1"/>
+                            <field name="submit_datetime" readonly="1"/>
+                            <field name="reviewed_by" readonly="1"/>
+                            <field name="review_datetime" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Laporan Umum" name="general">
+                            <group>
+                                <field name="operational_condition" required="1" 
+                                       placeholder="Deskripsikan kondisi operasional secara keseluruhan..."/>
+                            </group>
+                            <group>
+                                <field name="technical_issues" 
+                                       placeholder="Deskripsikan kendala teknis yang terjadi..."/>
+                            </group>
+                            <group>
+                                <field name="special_instructions" 
+                                       placeholder="Instruksi penting untuk shift berikutnya..."/>
+                            </group>
+                            <group>
+                                <field name="unfinished_tasks" 
+                                       placeholder="Tugas yang belum terselesaikan..."/>
+                            </group>
+                        </page>
+                        
+                        <!-- Template khusus Floor Service -->
+                        <page string="Detail Floor Service" name="floor" 
+                              invisible="division != 'floor'">
+                            <group>
+                                <field name="floor_specific_notes" nolabel="1"
+                                       placeholder="Status meja, keluhan pelanggan, reservasi khusus, dll."/>
+                            </group>
+                        </page>
+                        
+                        <!-- Template khusus Kitchen -->
+                        <page string="Detail Kitchen" name="kitchen" 
+                              invisible="division != 'kitchen'">
+                            <group>
+                                <field name="kitchen_specific_notes" nolabel="1"
+                                       placeholder="Stok bahan baku, menu unavailable, peralatan rusak, dll."/>
+                            </group>
+                        </page>
+                        
+                        <!-- Template khusus Bar -->
+                        <page string="Detail Bar" name="bar" 
+                              invisible="division != 'bar'">
+                            <group>
+                                <field name="bar_specific_notes" nolabel="1"
+                                       placeholder="Stok minuman, ketersediaan ice, peralatan bar, dll."/>
+                            </group>
+                        </page>
+                        
+                        <!-- Template khusus Bakery -->
+                        <page string="Detail Bakery" name="bakery" 
+                              invisible="division != 'bakery'">
+                            <group>
+                                <field name="bakery_specific_notes" nolabel="1"
+                                       placeholder="Produk pre-order, stok bahan baku, produksi hari ini, dll."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_classico_shift_report_kanban" model="ir.ui.view">
+        <field name="name">classico.shift.report.kanban</field>
+        <field name="model">classico.shift.report</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="division" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="report_date"/>
+                <field name="shift_type"/>
+                <field name="division"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <strong><field name="name"/></strong>
+                                <ul>
+                                    <li><field name="report_date"/> - <field name="shift_type"/></li>
+                                    <li><field name="division"/></li>
+                                    <li><field name="state" widget="badge"/></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_classico_shift_report_search" model="ir.ui.view">
+        <field name="name">classico.shift.report.search</field>
+        <field name="model">classico.shift.report</field>
+        <field name="arch" type="xml">
+            <search string="Cari Laporan Shift">
+                <field name="name"/>
+                <field name="division"/>
+                <field name="report_date"/>
+                <filter string="Hari Ini" name="today" 
+                        domain="[('report_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Minggu Ini" name="this_week" 
+                        domain="[('report_date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter string="Shift Pagi" name="morning" domain="[('shift_type', '=', 'morning')]"/>
+                <filter string="Shift Malam" name="evening" domain="[('shift_type', '=', 'evening')]"/>
+                <separator/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Reviewed" name="reviewed" domain="[('state', '=', 'reviewed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Divisi" name="group_division" context="{'group_by': 'division'}"/>
+                    <filter string="Shift" name="group_shift" context="{'group_by': 'shift_type'}"/>
+                    <filter string="Tanggal" name="group_date" context="{'group_by': 'report_date'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_classico_shift_report" model="ir.actions.act_window">
+        <field name="name">Laporan Shift Digital</field>
+        <field name="res_model">classico.shift.report</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat laporan shift baru
+            </p>
+            <p>
+                Sistem laporan shift digital menggantikan handover manual via WhatsApp.
+                Setiap divisi wajib submit laporan sebelum shift berakhir (OW-04).
+            </p>
+        </field>
+    </record>
+
+    <!-- Archive Action -->
+    <record id="action_classico_shift_archive" model="ir.actions.act_window">
+        <field name="name">Histori Laporan Shift</field>
+        <field name="res_model">classico.shift.report</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', '=', 'reviewed')]</field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_classico_shift"
+              name="Laporan Shift Digital"
+              parent="menu_classico_root"
+              action="action_classico_shift_report"
+              sequence="30"/>
+
+    <menuitem id="menu_classico_archive_shift"
+              name="Histori Laporan Shift"
+              parent="menu_classico_archive"
+              action="action_classico_shift_archive"
+              sequence="20"/>
+</odoo>

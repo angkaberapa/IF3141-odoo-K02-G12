@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- FR-05: Pusat Dokumentasi & Laporan -->
+    
+    <!-- Pivot View - Analisis Reservasi -->
+    <record id="view_classico_reservation_pivot" model="ir.ui.view">
+        <field name="name">classico.reservation.pivot</field>
+        <field name="model">classico.reservation</field>
+        <field name="arch" type="xml">
+            <pivot string="Analisis Reservasi">
+                <field name="reservation_date" type="row" interval="week"/>
+                <field name="state" type="col"/>
+                <field name="guest_count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View - Trend Reservasi -->
+    <record id="view_classico_reservation_graph" model="ir.ui.view">
+        <field name="name">classico.reservation.graph</field>
+        <field name="model">classico.reservation</field>
+        <field name="arch" type="xml">
+            <graph string="Trend Reservasi" type="line">
+                <field name="reservation_date" interval="day"/>
+                <field name="guest_count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View - Analisis Keluhan -->
+    <record id="view_classico_complaint_pivot" model="ir.ui.view">
+        <field name="name">classico.complaint.pivot</field>
+        <field name="model">classico.complaint</field>
+        <field name="arch" type="xml">
+            <pivot string="Analisis Keluhan">
+                <field name="category" type="row"/>
+                <field name="responsible_division" type="col"/>
+                <field name="resolution_time" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View - Keluhan per Kategori -->
+    <record id="view_classico_complaint_graph" model="ir.ui.view">
+        <field name="name">classico.complaint.graph</field>
+        <field name="model">classico.complaint</field>
+        <field name="arch" type="xml">
+            <graph string="Frekuensi Keluhan" type="bar">
+                <field name="category"/>
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View - Laporan Shift -->
+    <record id="view_classico_shift_pivot" model="ir.ui.view">
+        <field name="name">classico.shift.report.pivot</field>
+        <field name="model">classico.shift.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Analisis Shift">
+                <field name="report_date" type="row" interval="week"/>
+                <field name="division" type="row"/>
+                <field name="shift_type" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Dashboard Action untuk CEO & Manager -->
+    <record id="action_classico_dashboard_reservation" model="ir.actions.act_window">
+        <field name="name">Laporan Reservasi</field>
+        <field name="res_model">classico.reservation</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="domain">[('state', 'in', ['confirmed', 'arrived', 'done'])]</field>
+        <field name="context">{
+            'search_default_this_week': 1,
+            'group_by': ['reservation_date:week']
+        }</field>
+    </record>
+
+    <record id="action_classico_dashboard_complaint" model="ir.actions.act_window">
+        <field name="name">Laporan Keluhan</field>
+        <field name="res_model">classico.complaint</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="context">{'group_by': ['category']}</field>
+    </record>
+
+    <record id="action_classico_dashboard_shift" model="ir.actions.act_window">
+        <field name="name">Laporan Shift</field>
+        <field name="res_model">classico.shift.report</field>
+        <field name="view_mode">pivot,tree</field>
+        <field name="domain">[('state', '=', 'reviewed')]</field>
+        <field name="context">{'group_by': ['division', 'shift_type']}</field>
+    </record>
+
+    <!-- Menu untuk Laporan -->
+    <menuitem id="menu_classico_report_reservation"
+              name="Analisis Reservasi"
+              parent="menu_classico_reports"
+              action="action_classico_dashboard_reservation"
+              sequence="10"/>
+
+    <menuitem id="menu_classico_report_complaint"
+              name="Analisis Keluhan"
+              parent="menu_classico_reports"
+              action="action_classico_dashboard_complaint"
+              sequence="20"/>
+
+    <menuitem id="menu_classico_report_shift"
+              name="Analisis Shift"
+              parent="menu_classico_reports"
+              action="action_classico_dashboard_shift"
+              sequence="30"/>
+</odoo>

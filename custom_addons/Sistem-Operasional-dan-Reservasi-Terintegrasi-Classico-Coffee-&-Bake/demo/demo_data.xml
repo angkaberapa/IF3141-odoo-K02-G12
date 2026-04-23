@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sequences -->
+        <record id="seq_classico_reservation" model="ir.sequence">
+            <field name="name">Classico Reservation Sequence</field>
+            <field name="code">classico.reservation</field>
+            <field name="prefix">RES</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_classico_shift_report" model="ir.sequence">
+            <field name="name">Classico Shift Report Sequence</field>
+            <field name="code">classico.shift.report</field>
+            <field name="prefix">SHIFT</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_classico_complaint" model="ir.sequence">
+            <field name="name">Classico Complaint Sequence</field>
+            <field name="code">classico.complaint</field>
+            <field name="prefix">TKT</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <!-- Sample Tables -->
+        <record id="table_1" model="classico.table">
+            <field name="name">1</field>
+            <field name="capacity">2</field>
+            <field name="floor_section">indoor</field>
+            <field name="state">available</field>
+            <field name="notes">Dekat jendela</field>
+        </record>
+
+        <record id="table_2" model="classico.table">
+            <field name="name">2</field>
+            <field name="capacity">4</field>
+            <field name="floor_section">indoor</field>
+            <field name="state">available</field>
+        </record>
+
+        <record id="table_3" model="classico.table">
+            <field name="name">3</field>
+            <field name="capacity">4</field>
+            <field name="floor_section">indoor</field>
+            <field name="state">occupied</field>
+        </record>
+
+        <record id="table_4" model="classico.table">
+            <field name="name">4</field>
+            <field name="capacity">6</field>
+            <field name="floor_section">indoor</field>
+            <field name="state">available</field>
+        </record>
+
+        <record id="table_5" model="classico.table">
+            <field name="name">5</field>
+            <field name="capacity">2</field>
+            <field name="floor_section">outdoor</field>
+            <field name="state">available</field>
+            <field name="notes">Area outdoor</field>
+        </record>
+
+        <record id="table_6" model="classico.table">
+            <field name="name">6</field>
+            <field name="capacity">4</field>
+            <field name="floor_section">outdoor</field>
+            <field name="state">reserved</field>
+        </record>
+
+        <record id="table_7" model="classico.table">
+            <field name="name">7</field>
+            <field name="capacity">8</field>
+            <field name="floor_section">vip</field>
+            <field name="state">available</field>
+            <field name="notes">VIP Room - Private</field>
+        </record>
+
+        <record id="table_8" model="classico.table">
+            <field name="name">8</field>
+            <field name="capacity">2</field>
+            <field name="floor_section">indoor</field>
+            <field name="state">available</field>
+        </record>
+
+        <!-- Sample Reservations -->
+        <record id="reservation_1" model="classico.reservation">
+            <field name="customer_name">Budi Santoso</field>
+            <field name="customer_phone">081234567890</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">18.5</field>
+            <field name="guest_count">4</field>
+            <field name="special_request">Meja dekat jendela</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_2"/>
+        </record>
+
+        <record id="reservation_2" model="classico.reservation">
+            <field name="customer_name">Siti Nurhaliza</field>
+            <field name="customer_phone">082345678901</field>
+            <field name="reservation_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">12.0</field>
+            <field name="guest_count">2</field>
+            <field name="state">draft</field>
+        </record>
+
+        <record id="reservation_3" model="classico.reservation">
+            <field name="customer_name">Ahmad Rahman</field>
+            <field name="customer_phone">083456789012</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">19.0</field>
+            <field name="guest_count">6</field>
+            <field name="special_request">High chair untuk anak</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_4"/>
+        </record>
+
+        <!-- Sample Shift Reports -->
+        <record id="shift_1" model="classico.shift.report">
+            <field name="report_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+            <field name="shift_type">morning</field>
+            <field name="division">floor</field>
+            <field name="operational_condition">Shift pagi berjalan lancar, kapasitas 70%</field>
+            <field name="technical_issues">Tidak ada kendala teknis</field>
+            <field name="floor_specific_notes">Meja 3 dan 6 masih terisi saat shift berakhir</field>
+            <field name="state">submitted</field>
+        </record>
+
+        <record id="shift_2" model="classico.shift.report">
+            <field name="report_date" eval="(DateTime.now() - timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="shift_type">evening</field>
+            <field name="division">kitchen</field>
+            <field name="operational_condition">Shift malam cukup ramai, banyak pesanan</field>
+            <field name="technical_issues">Kompor 2 sempat mati, sudah diperbaiki</field>
+            <field name="kitchen_specific_notes">Stok ayam menipis, perlu restocking besok pagi</field>
+            <field name="state">reviewed</field>
+        </record>
+
+        <!-- Sample Complaints -->
+        <record id="complaint_1" model="classico.complaint">
+            <field name="complaint_description">Kopi terlalu dingin saat disajikan</field>
+            <field name="incident_datetime" eval="DateTime.now()"/>
+            <field name="customer_name">Linda Wijaya</field>
+            <field name="category">beverage</field>
+            <field name="priority">medium</field>
+            <field name="state">in_progress</field>
+            <field name="responsible_division">bar</field>
+        </record>
+
+        <record id="complaint_2" model="classico.complaint">
+            <field name="complaint_description">Pelayanan terlalu lama</field>
+            <field name="incident_datetime" eval="(DateTime.now() - timedelta(hours=2))"/>
+            <field name="category">service</field>
+            <field name="priority">high</field>
+            <field name="state">resolved</field>
+            <field name="responsible_division">floor</field>
+            <field name="resolution_notes">Telah dikomunikasikan dengan customer dan memberikan complimentary dessert</field>
+        </record>
+
+        <record id="complaint_3" model="classico.complaint">
+            <field name="complaint_description">Roti kurang matang</field>
+            <field name="incident_datetime" eval="(DateTime.now() - timedelta(hours=1))"/>
+            <field name="customer_name">Rudi Hartono</field>
+            <field name="category">food</field>
+            <field name="priority">urgent</field>
+            <field name="state">open</field>
+            <field name="responsible_division">bakery</field>
+            <field name="follow_up_required" eval="True"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_classico_complaint_tree" model="ir.ui.view">
+        <field name="name">classico.complaint.tree</field>
+        <field name="model">classico.complaint</field>
+        <field name="arch" type="xml">
+            <tree string="Keluhan Pelanggan" 
+                  decoration-danger="priority=='urgent'"
+                  decoration-warning="priority=='high'"
+                  decoration-success="state=='resolved'">
+                <field name="name"/>
+                <field name="category"/>
+                <field name="incident_datetime"/>
+                <field name="priority" widget="badge"
+                       decoration-danger="priority=='urgent'"
+                       decoration-warning="priority=='high'"/>
+                <field name="responsible_division"/>
+                <field name="assigned_to"/>
+                <field name="state" widget="badge"
+                       decoration-info="state=='open'"
+                       decoration-warning="state=='in_progress'"
+                       decoration-success="state=='resolved'"
+                       decoration-muted="state=='closed'"/>
+                <field name="resolution_time" widget="float_time" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_classico_complaint_form" model="ir.ui.view">
+        <field name="name">classico.complaint.form</field>
+        <field name="model">classico.complaint</field>
+        <field name="arch" type="xml">
+            <form string="Keluhan Pelanggan">
+                <header>
+                    <button name="action_assign" string="Assign &amp; Start Progress" type="object" 
+                            invisible="state != 'open'" class="oe_highlight"/>
+                    <button name="action_resolve" string="Resolve" type="object" 
+                            invisible="state != 'in_progress'" class="oe_highlight"/>
+                    <button name="action_close" string="Close Ticket" type="object" 
+                            invisible="state != 'resolved'" class="oe_highlight"/>
+                    <button name="action_reopen" string="Reopen" type="object" 
+                            invisible="state not in ['resolved', 'closed']" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="open,in_progress,resolved,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_assign" icon="fa-clock-o">
+                            <field name="resolution_time" widget="statinfo" string="Waktu Resolusi (jam)"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informasi Keluhan">
+                            <field name="category" required="1"/>
+                            <field name="priority" required="1" widget="priority"/>
+                            <field name="incident_datetime" required="1"/>
+                            <field name="customer_name"/>
+                        </group>
+                        <group string="Penanganan">
+                            <field name="responsible_division"/>
+                            <field name="assigned_to"/>
+                            <field name="follow_up_required"/>
+                            <field name="reported_by" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Deskripsi Keluhan">
+                        <field name="complaint_description" nolabel="1" required="1" 
+                               placeholder="Jelaskan detail keluhan pelanggan..."/>
+                    </group>
+                    <group string="Catatan Penyelesaian" invisible="state == 'open'">
+                        <field name="resolution_notes" nolabel="1" 
+                               placeholder="Jelaskan tindakan yang telah dilakukan untuk menyelesaikan keluhan..."/>
+                        <field name="resolution_datetime" readonly="1"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_classico_complaint_kanban" model="ir.ui.view">
+        <field name="name">classico.complaint.kanban</field>
+        <field name="model">classico.complaint</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="category"/>
+                <field name="priority"/>
+                <field name="state"/>
+                <field name="complaint_description"/>
+                <field name="assigned_to"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click 
+                                           #{record.priority.raw_value == 'urgent' ? 'oe_kanban_color_2' : ''}
+                                           #{record.priority.raw_value == 'high' ? 'oe_kanban_color_5' : ''}">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                    <span class="float-right">
+                                        <field name="priority" widget="priority"/>
+                                    </span>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="complaint_description"/>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="category"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="assigned_to" widget="many2one_avatar_user"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_classico_complaint_search" model="ir.ui.view">
+        <field name="name">classico.complaint.search</field>
+        <field name="model">classico.complaint</field>
+        <field name="arch" type="xml">
+            <search string="Cari Keluhan">
+                <field name="name"/>
+                <field name="category"/>
+                <field name="customer_name"/>
+                <field name="assigned_to"/>
+                <filter string="Urgent" name="urgent" domain="[('priority', '=', 'urgent')]"/>
+                <filter string="High Priority" name="high" domain="[('priority', '=', 'high')]"/>
+                <separator/>
+                <filter string="Open" name="open" domain="[('state', '=', 'open')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Resolved" name="resolved" domain="[('state', '=', 'resolved')]"/>
+                <filter string="Closed" name="closed" domain="[('state', '=', 'closed')]"/>
+                <separator/>
+                <filter string="Perlu Follow Up" name="follow_up" domain="[('follow_up_required', '=', True)]"/>
+                <filter string="My Tickets" name="my_tickets" domain="[('assigned_to', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Kategori" name="group_category" context="{'group_by': 'category'}"/>
+                    <filter string="Prioritas" name="group_priority" context="{'group_by': 'priority'}"/>
+                    <filter string="Divisi" name="group_division" context="{'group_by': 'responsible_division'}"/>
+                    <filter string="Assigned To" name="group_assigned" context="{'group_by': 'assigned_to'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_classico_complaint" model="ir.actions.act_window">
+        <field name="name">Ticketing Keluhan Pelanggan</field>
+        <field name="res_model">classico.complaint</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{'search_default_open': 1, 'search_default_in_progress': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat tiket keluhan baru
+            </p>
+            <p>
+                Sistem ticketing untuk mendokumentasikan dan melacak penyelesaian keluhan pelanggan.
+                Semua aktivitas tercatat otomatis untuk audit trail (OW-08).
+            </p>
+        </field>
+    </record>
+
+    <!-- Archive Action -->
+    <record id="action_classico_complaint_archive" model="ir.actions.act_window">
+        <field name="name">Histori Keluhan</field>
+        <field name="res_model">classico.complaint</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', 'in', ['resolved', 'closed'])]</field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_classico_complaint"
+              name="Ticketing Keluhan"
+              parent="menu_classico_root"
+              action="action_classico_complaint"
+              sequence="40"/>
+
+    <menuitem id="menu_classico_archive_complaint"
+              name="Histori Keluhan"
+              parent="menu_classico_archive"
+              action="action_classico_complaint_archive"
+              sequence="30"/>
+</odoo>
