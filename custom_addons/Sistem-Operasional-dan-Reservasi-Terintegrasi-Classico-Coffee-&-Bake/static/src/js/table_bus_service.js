@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
 /*
-kata gemini, kalau mau "real-time" (as written di milestone 4), perlu pakai bus, gw baca baca dan gw testing di local kurang lebih udah jalan. tapi jujur gatau apakah bener bener realtime 
+kata gemini, kalau mau "real-time" (as written di milestone 4), perlu pakai bus, jadi di-sini behaviournya dia bakal nge-subscribe gitu ke table. terus kalau misal ada changes bakal forced refresh + dapet notif gitu. jujur belum nyoba di 2 akun berbeda. kalau di 2 akun yang sama dia ke-fire sih notif + auto-refreshnya
 */
 
 import { registry } from "@web/core/registry";
