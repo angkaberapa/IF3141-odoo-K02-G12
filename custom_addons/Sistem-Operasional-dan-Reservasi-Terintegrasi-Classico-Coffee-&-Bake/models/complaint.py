@@ -37,6 +37,12 @@ class ClassicoComplaint(models.Model):
         string='Nama Pelanggan (Opsional)',
         tracking=True
     )
+
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Pelanggan',
+        tracking=True
+    )
     
     category = fields.Selection([
         ('food', 'Makanan'),
@@ -105,11 +111,24 @@ class ClassicoComplaint(models.Model):
         tracking=True
     )
 
-    @api.model
-    def create(self, vals):
-        if vals.get('name', 'New') == 'New':
-            vals['name'] = self.env['ir.sequence'].next_by_code('classico.complaint') or 'New'
-        return super(ClassicoComplaint, self).create(vals)
+    followup_ids = fields.One2many(
+        'classico.complaint.followup',
+        'complaint_id',
+        string='Riwayat Tindak Lanjut'
+    )
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        for record in self:
+            if record.partner_id:
+                record.customer_name = record.partner_id.name
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('classico.complaint') or 'New'
+        return super().create(vals_list)
 
     @api.depends('incident_datetime', 'resolution_datetime')
     def _compute_resolution_time(self):
@@ -122,7 +141,9 @@ class ClassicoComplaint(models.Model):
 
     def action_assign(self):
         """Assign tiket ke penanggung jawab"""
-        self.write({'state': 'in_progress'})
+        for record in self:
+            record.write({'state': 'in_progress'})
+            record._create_followup('Tiket mulai diproses', 'in_progress')
         return True
 
     def action_resolve(self):
@@ -130,10 +151,12 @@ class ClassicoComplaint(models.Model):
         if not self.resolution_notes:
             raise ValidationError('Catatan penyelesaian wajib diisi sebelum menutup tiket')
         
-        self.write({
-            'state': 'resolved',
-            'resolution_datetime': fields.Datetime.now()
-        })
+        for record in self:
+            record.write({
+                'state': 'resolved',
+                'resolution_datetime': fields.Datetime.now()
+            })
+            record._create_followup(record.resolution_notes, 'done')
         return True
 
     def action_close(self):
@@ -142,6 +165,8 @@ class ClassicoComplaint(models.Model):
             raise ValidationError('Tiket harus diresolve terlebih dahulu sebelum ditutup')
         
         self.write({'state': 'closed'})
+        for record in self:
+            record._create_followup('Tiket ditutup', 'done')
         return True
 
     def action_reopen(self):
@@ -150,7 +175,18 @@ class ClassicoComplaint(models.Model):
             'state': 'open',
             'resolution_datetime': False
         })
+        for record in self:
+            record._create_followup('Tiket dibuka kembali', 'pending')
         return True
+
+    def _create_followup(self, note, status):
+        self.ensure_one()
+        self.env['classico.complaint.followup'].create({
+            'complaint_id': self.id,
+            'note': note,
+            'status': status,
+            'updated_by': self.env.user.id,
+        })
 
     @api.model
     def get_complaint_statistics(self):
@@ -174,3 +210,24 @@ class ClassicoComplaint(models.Model):
             'closed': closed,
             'by_category': categories
         }
+
+
+class ClassicoComplaintFollowup(models.Model):
+    _name = 'classico.complaint.followup'
+    _description = 'Tindak Lanjut Keluhan'
+    _order = 'update_datetime desc'
+
+    complaint_id = fields.Many2one(
+        'classico.complaint',
+        string='Keluhan',
+        required=True,
+        ondelete='cascade'
+    )
+    note = fields.Text(string='Catatan', required=True)
+    status = fields.Selection([
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+    ], string='Status Tindakan', default='pending', required=True)
+    update_datetime = fields.Datetime(string='Waktu Update', default=fields.Datetime.now, required=True)
+    updated_by = fields.Many2one('res.users', string='Diperbarui Oleh', default=lambda self: self.env.user, readonly=True)

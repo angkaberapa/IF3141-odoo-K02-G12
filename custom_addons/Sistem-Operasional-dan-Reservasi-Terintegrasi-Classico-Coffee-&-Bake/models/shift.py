@@ -4,6 +4,32 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
 
+class ClassicoShift(models.Model):
+    _name = 'classico.shift'
+    _description = 'Shift Operasional'
+    _order = 'start_time, name'
+
+    name = fields.Char(string='Nama Shift', required=True)
+    start_time = fields.Float(string='Waktu Mulai', required=True, help='Format: 7.5 untuk 07:30')
+    end_time = fields.Float(string='Waktu Selesai', required=True, help='Format: 15.0 untuk 15:00')
+    description = fields.Text(string='Deskripsi')
+    active = fields.Boolean(string='Aktif', default=True)
+
+    _sql_constraints = [
+        ('unique_shift_name', 'UNIQUE(name)', 'Nama shift sudah digunakan!')
+    ]
+
+    @api.constrains('start_time', 'end_time')
+    def _check_shift_time(self):
+        for record in self:
+            if record.start_time < 0 or record.start_time >= 24:
+                raise ValidationError('Waktu mulai shift harus berada pada rentang 00:00 - 23:59')
+            if record.end_time <= 0 or record.end_time > 24:
+                raise ValidationError('Waktu selesai shift harus berada pada rentang 00:01 - 24:00')
+            if record.start_time == record.end_time:
+                raise ValidationError('Waktu mulai dan selesai shift tidak boleh sama')
+
+
 class ClassicoShiftReport(models.Model):
     _name = 'classico.shift.report'
     _description = 'Laporan Shift Digital'
@@ -31,6 +57,13 @@ class ClassicoShiftReport(models.Model):
         ('morning', 'Pagi (07:00 - 15:00)'),
         ('evening', 'Malam (15:00 - 23:00)')
     ], string='Shift', required=True, tracking=True)
+
+    shift_id = fields.Many2one(
+        'classico.shift',
+        string='Data Shift',
+        tracking=True,
+        help='Referensi master shift operasional'
+    )
     
     division = fields.Selection([
         ('floor', 'Floor Service'),
@@ -111,11 +144,18 @@ class ClassicoShiftReport(models.Model):
         help='Produk pre-order, stok bahan baku, dll'
     )
 
-    @api.model
-    def create(self, vals):
-        if vals.get('name', 'New') == 'New':
-            vals['name'] = self.env['ir.sequence'].next_by_code('classico.shift.report') or 'New'
-        return super(ClassicoShiftReport, self).create(vals)
+    operational_note_ids = fields.One2many(
+        'classico.operational.note',
+        'shift_report_id',
+        string='Catatan Operasional'
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('classico.shift.report') or 'New'
+        return super().create(vals_list)
 
     def action_submit(self):
         """Submit laporan shift"""

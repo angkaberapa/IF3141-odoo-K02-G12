@@ -7,3 +7,13 @@ access_classico_shift_user,classico.shift.report.user,model_classico_shift_repor
 access_classico_shift_manager,classico.shift.report.manager,model_classico_shift_report,base.group_system,1,1,1,1
 access_classico_complaint_user,classico.complaint.user,model_classico_complaint,base.group_user,1,1,1,0
 access_classico_complaint_manager,classico.complaint.manager,model_classico_complaint,base.group_system,1,1,1,1
+access_classico_table_allocation_user,classico.table.allocation.user,model_classico_table_allocation,base.group_user,1,1,1,0
+access_classico_table_allocation_manager,classico.table.allocation.manager,model_classico_table_allocation,base.group_system,1,1,1,1
+access_classico_shift_master_user,classico.shift.user,model_classico_shift,base.group_user,1,0,0,0
+access_classico_shift_master_manager,classico.shift.manager,model_classico_shift,base.group_system,1,1,1,1
+access_classico_complaint_followup_user,classico.complaint.followup.user,model_classico_complaint_followup,base.group_user,1,1,1,0
+access_classico_complaint_followup_manager,classico.complaint.followup.manager,model_classico_complaint_followup,base.group_system,1,1,1,1
+access_classico_operational_note_user,classico.operational.note.user,model_classico_operational_note,base.group_user,1,1,1,0
+access_classico_operational_note_manager,classico.operational.note.manager,model_classico_operational_note,base.group_system,1,1,1,1
+access_classico_evaluation_report_user,classico.evaluation.report.user,model_classico_evaluation_report,base.group_user,1,1,1,0
+access_classico_evaluation_report_manager,classico.evaluation.report.manager,model_classico_evaluation_report,base.group_system,1,1,1,1

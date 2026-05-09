@@ -14,7 +14,12 @@
     'author': "K02-G12",
     'category': 'Operations/Restaurant',
     'version': '1.0',
-    'depends': ['base', 'mail'],
+    'depends': ['base', 'mail', 'bus'],
+    'assets': {
+        'web.assets_backend': [
+            'Sistem-Operasional-dan-Reservasi-Terintegrasi-Classico-Coffee-&-Bake/static/src/js/table_bus_service.js',
+        ],
+    },
     'data': [
         'data/ir_sequence.xml',
         'security/ir.model.access.csv',
