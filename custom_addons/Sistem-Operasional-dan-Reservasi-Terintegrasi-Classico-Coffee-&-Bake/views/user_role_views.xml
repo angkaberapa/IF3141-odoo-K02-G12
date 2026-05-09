@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_classico_user_role_tree" model="ir.ui.view">
+        <field name="name">classico.user.role.tree</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <tree string="Manajemen User &amp; Role">
+                <field name="name"/>
+                <field name="login"/>
+                <field name="active" optional="show"/>
+                <field name="groups_id"
+                       widget="many2many_tags"
+                       domain="[('category_id.name', '=', 'Classico Coffee &amp; Bake')]"
+                       options="{'no_create': True}"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_classico_user_role_search" model="ir.ui.view">
+        <field name="name">classico.user.role.search</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <search string="Cari User">
+                <field name="name"/>
+                <field name="login"/>
+                <filter string="Staff Operasional"
+                        name="classico_staff"
+                        domain="[('groups_id', 'in', [context.get('classico_staff_group_id')])]"/>
+                <filter string="Manager Operasional"
+                        name="classico_manager"
+                        domain="[('groups_id', 'in', [context.get('classico_manager_group_id')])]"/>
+                <filter string="Administrator"
+                        name="classico_admin"
+                        domain="[('groups_id', 'in', [context.get('classico_admin_group_id')])]"/>
+                <separator/>
+                <filter string="Internal User" name="internal_user" domain="[('share', '=', False)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_users_form_classico_roles" model="ir.ui.view">
+        <field name="name">res.users.form.classico.roles</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Role Classico" name="classico_roles" groups="base.group_system">
+                    <group>
+                        <group string="Hak Akses Classico">
+                            <field name="groups_id"
+                                   widget="many2many_tags"
+                                   domain="[('category_id.name', '=', 'Classico Coffee &amp; Bake')]"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_classico_user_role_management" model="ir.actions.act_window">
+        <field name="name">Manajemen User &amp; Role</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_classico_user_role_search"/>
+        <field name="domain">[('share', '=', False)]</field>
+        <field name="context" eval="{
+            'classico_staff_group_id': ref('group_classico_staff'),
+            'classico_manager_group_id': ref('group_classico_manager'),
+            'classico_admin_group_id': ref('group_classico_admin')
+        }"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Kelola user dan role Classico
+            </p>
+            <p>
+                Buka user lalu gunakan tab Role Classico untuk memberi hak akses Staff,
+                Manager, atau Administrator.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_classico_user_role_management_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_classico_user_role_tree"/>
+        <field name="act_window_id" ref="action_classico_user_role_management"/>
+    </record>
+
+    <record id="action_classico_user_role_management_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="base.view_users_form"/>
+        <field name="act_window_id" ref="action_classico_user_role_management"/>
+    </record>
+
+    <menuitem id="menu_classico_configuration"
+              name="Konfigurasi"
+              parent="menu_classico_root"
+              sequence="90"
+              groups="group_classico_admin,base.group_system"/>
+
+    <menuitem id="menu_classico_user_role_management"
+              name="Manajemen User &amp; Role"
+              parent="menu_classico_configuration"
+              action="action_classico_user_role_management"
+              sequence="10"
+              groups="group_classico_admin,base.group_system"/>
+</odoo>

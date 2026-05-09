@@ -16,14 +16,16 @@
     'version': '1.0',
     'depends': ['base', 'mail'],
     'data': [
-        'data/ir_sequence.xml',
+        'security/security.xml',
         'security/ir.model.access.csv',
+        'data/ir_sequence.xml',
         'views/menus.xml',
         'views/reservation_views.xml',
         'views/table_views.xml',
         'views/shift_views.xml',
         'views/complaint_views.xml',
         'views/archive_views.xml',
+        'views/user_role_views.xml',
     ],
     'demo': [
         'demo/demo_data.xml',

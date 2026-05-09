@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class ClassicoShiftReport(models.Model):
@@ -129,6 +129,10 @@ class ClassicoShiftReport(models.Model):
 
     def action_review(self):
         """Review laporan oleh manager"""
+        module_name = __name__.split('.')[2]
+        if not self.env.user.has_group(f'{module_name}.group_classico_manager'):
+            raise AccessError('Hanya Manager Operasional atau Administrator yang dapat mereview laporan shift.')
+
         self.write({
             'state': 'reviewed',
             'reviewed_by': self.env.user.id,

@@ -160,11 +160,13 @@
               name="Manajemen Reservasi"
               parent="menu_classico_root"
               action="action_classico_reservation"
-              sequence="10"/>
+              sequence="10"
+              groups="group_classico_staff"/>
 
     <menuitem id="menu_classico_archive_reservation"
               name="Histori Reservasi"
               parent="menu_classico_archive"
               action="action_classico_reservation_archive"
-              sequence="10"/>
+              sequence="10"
+              groups="group_classico_manager"/>
 </odoo>

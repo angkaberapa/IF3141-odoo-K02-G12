@@ -97,17 +97,20 @@
               name="Analisis Reservasi"
               parent="menu_classico_reports"
               action="action_classico_dashboard_reservation"
-              sequence="10"/>
+              sequence="10"
+              groups="group_classico_manager"/>
 
     <menuitem id="menu_classico_report_complaint"
               name="Analisis Keluhan"
               parent="menu_classico_reports"
               action="action_classico_dashboard_complaint"
-              sequence="20"/>
+              sequence="20"
+              groups="group_classico_manager"/>
 
     <menuitem id="menu_classico_report_shift"
               name="Analisis Shift"
               parent="menu_classico_reports"
               action="action_classico_dashboard_shift"
-              sequence="30"/>
+              sequence="30"
+              groups="group_classico_manager"/>
 </odoo>

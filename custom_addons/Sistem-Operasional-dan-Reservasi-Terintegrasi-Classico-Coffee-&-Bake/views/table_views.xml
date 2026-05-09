@@ -25,7 +25,7 @@
                                         </strong>
                                     </div>
                                     <div class="o_kanban_record_subtitle">
-                                        <i class="fa fa-users"/> <field name="capacity"/> kursi
+                                        <i class="fa fa-users" title="Kapasitas"/> <field name="capacity"/> kursi
                                     </div>
                                 </div>
                                 <div class="o_kanban_record_body">
@@ -171,5 +171,6 @@
               name="Dashboard Kapasitas Meja"
               parent="menu_classico_root"
               action="action_classico_table"
-              sequence="20"/>
+              sequence="20"
+              groups="group_classico_staff"/>
 </odoo>
