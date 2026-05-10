@@ -24,6 +24,7 @@
         'data/ir_sequence.xml',
         'security/ir.model.access.csv',
         'views/menus.xml',
+        'views/user_role_views.xml',
         'views/reservation_views.xml',
         'views/table_views.xml',
         'views/shift_views.xml',

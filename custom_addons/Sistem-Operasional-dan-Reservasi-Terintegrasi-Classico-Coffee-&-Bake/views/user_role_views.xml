@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_classico_user_create_wizard_form" model="ir.ui.view">
+        <field name="name">classico.user.create.wizard.form</field>
+        <field name="model">classico.user.create.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Tambah Pengguna">
+                <sheet>
+                    <group>
+                        <group string="Informasi Akun">
+                            <field name="name"/>
+                            <field name="login"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Role">
+                            <field name="classico_role" widget="radio"/>
+                        </group>
+                    </group>
+                    <group string="Password">
+                        <field name="password" password="True"/>
+                        <field name="password_confirmation" password="True"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" string="Simpan" type="object" class="btn-primary"/>
+                    <button string="Batal" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_classico_user_create_wizard" model="ir.actions.act_window">
+        <field name="name">Tambah Pengguna</field>
+        <field name="res_model">classico.user.create.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_classico_user_create_wizard_form"/>
+        <field name="target">new</field>
+        <field name="context">{'default_active': True, 'default_classico_role': 'staff'}</field>
+    </record>
+
+    <record id="view_classico_user_role_assignment_wizard_form" model="ir.ui.view">
+        <field name="name">classico.user.role.assignment.wizard.form</field>
+        <field name="model">classico.user.role.assignment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assign Role">
+                <sheet>
+                    <group>
+                        <field name="user_id"/>
+                        <field name="login"/>
+                        <field name="active"/>
+                        <field name="classico_role" widget="radio"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" string="Simpan" type="object" class="btn-primary"/>
+                    <button string="Batal" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_classico_user_role_tree" model="ir.ui.view">
+        <field name="name">classico.user.role.tree</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <tree string="Assign Role" create="false" delete="true">
+                <field name="name"/>
+                <field name="login"/>
+                <field name="classico_role"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_classico_user_role_form" model="ir.ui.view">
+        <field name="name">classico.user.role.form</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <form string="Assign Role" create="false" edit="false" delete="true">
+                <header>
+                    <button name="action_open_classico_role_assignment"
+                            type="object"
+                            string="Assign Role"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Informasi Akun">
+                            <field name="name" readonly="1"/>
+                            <field name="login" readonly="1"/>
+                            <field name="active" readonly="1"/>
+                        </group>
+                        <group string="Role Saat Ini">
+                            <field name="classico_role" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_classico_user_role_search" model="ir.ui.view">
+        <field name="name">classico.user.role.search</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <search string="Cari Pengguna">
+                <field name="name"/>
+                <field name="login"/>
+                <field name="classico_role"/>
+                <filter string="Staf Operasional" name="staff" domain="[('classico_role', '=', 'staff')]"/>
+                <filter string="Restaurant Manager" name="manager" domain="[('classico_role', '=', 'manager')]"/>
+                <filter string="Administrator Sistem" name="admin" domain="[('classico_role', '=', 'admin')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_classico_user_role_management" model="ir.actions.act_window">
+        <field name="name">Assign Role</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_classico_user_role_search"/>
+        <field name="domain">[('share', '=', False)]</field>
+        <field name="context">{'default_share': False}</field>
+    </record>
+
+    <record id="action_classico_user_role_management_tree" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_classico_user_role_tree"/>
+        <field name="act_window_id" ref="action_classico_user_role_management"/>
+    </record>
+
+    <record id="action_classico_user_role_management_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_classico_user_role_form"/>
+        <field name="act_window_id" ref="action_classico_user_role_management"/>
+    </record>
+
+    <menuitem id="menu_classico_user_create"
+              name="Tambah Pengguna"
+              parent="menu_classico_configuration"
+              action="action_classico_user_create_wizard"
+              sequence="10"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_classico_user_role_management"
+              name="Assign Role"
+              parent="menu_classico_configuration"
+              action="action_classico_user_role_management"
+              sequence="20"
+              groups="base.group_system"/>
+</odoo>
