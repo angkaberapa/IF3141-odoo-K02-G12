@@ -7,6 +7,7 @@ from odoo.exceptions import ValidationError
 class ClassicoComplaint(models.Model):
     _name = 'classico.complaint'
     _description = 'Ticketing Keluhan Pelanggan'
+    _rec_name = 'title'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
@@ -18,6 +19,17 @@ class ClassicoComplaint(models.Model):
         readonly=True,
         default='New',
         tracking=True
+    )
+
+    title = fields.Char(
+        string='Judul Keluhan',
+        tracking=True,
+        help='Ringkas keluhan untuk identifikasi cepat'
+    )
+
+    display_title = fields.Char(
+        string='Judul Tampilan',
+        compute='_compute_display_title'
     )
     
     complaint_description = fields.Text(
@@ -65,13 +77,15 @@ class ClassicoComplaint(models.Model):
         ('in_progress', 'In Progress'),
         ('resolved', 'Resolved'),
         ('closed', 'Closed')
-    ], string='Status', default='open', required=True, tracking=True)
+    ], string='Status', default='open', required=True, tracking=True, group_expand='_group_expand_states')
     
     responsible_division = fields.Selection([
-        ('floor', 'Floor Service'),
+        ('floor', 'Floor Leader (Waiter/Waitress)'),
         ('kitchen', 'Kitchen'),
-        ('bar', 'Bar'),
+        ('bar', 'Barista'),
         ('bakery', 'Bakery'),
+        ('stock_keeper', 'Stock Keeper'),
+        ('cashier', 'Cashier'),
         ('management', 'Management')
     ], string='Divisi Penanggung Jawab', tracking=True)
     
@@ -98,7 +112,7 @@ class ClassicoComplaint(models.Model):
         string='Waktu Penyelesaian',
         readonly=True
     )
-    
+
     resolution_time = fields.Float(
         string='Waktu Penyelesaian (jam)',
         compute='_compute_resolution_time',
@@ -123,12 +137,31 @@ class ClassicoComplaint(models.Model):
             if record.partner_id:
                 record.customer_name = record.partner_id.name
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        default_name = self.env.context.get('default_name')
+        if default_name and not res.get('title'):
+            res['title'] = default_name
+            if res.get('name'):
+                res['name'] = 'New'
+        return res
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if vals.get('name') and vals.get('name') != 'New':
+                if not vals.get('title'):
+                    vals['title'] = vals['name']
+                vals['name'] = 'New'
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('classico.complaint') or 'New'
         return super().create(vals_list)
+
+    @api.model
+    def name_create(self, name):
+        record = self.create({'title': name})
+        return record.name_get()[0]
 
     @api.depends('incident_datetime', 'resolution_datetime')
     def _compute_resolution_time(self):
@@ -138,6 +171,18 @@ class ClassicoComplaint(models.Model):
                 record.resolution_time = delta.total_seconds() / 3600.0  # Convert to hours
             else:
                 record.resolution_time = 0.0
+
+    @api.depends('title', 'name')
+    def _compute_display_title(self):
+        for record in self:
+            if record.title and record.title != record.name:
+                record.display_title = record.title
+            else:
+                record.display_title = ''
+
+    @api.model
+    def _group_expand_states(self, states, domain, order):
+        return ['open', 'in_progress', 'resolved', 'closed']
 
     def action_assign(self):
         """Assign tiket ke penanggung jawab"""

@@ -5,25 +5,36 @@
         <field name="name">classico.complaint.tree</field>
         <field name="model">classico.complaint</field>
         <field name="arch" type="xml">
-            <tree string="Keluhan Pelanggan" 
-                  decoration-danger="priority=='urgent'"
-                  decoration-warning="priority=='high'"
-                  decoration-success="state=='resolved'">
-                <field name="name"/>
-                <field name="category"/>
-                <field name="incident_datetime"/>
-                <field name="priority" widget="badge"
-                       decoration-danger="priority=='urgent'"
-                       decoration-warning="priority=='high'"/>
-                <field name="responsible_division"/>
-                <field name="assigned_to"/>
-                <field name="state" widget="badge"
-                       decoration-info="state=='open'"
-                       decoration-warning="state=='in_progress'"
-                       decoration-success="state=='resolved'"
-                       decoration-muted="state=='closed'"/>
-                <field name="resolution_time" widget="float_time" optional="show"/>
-            </tree>
+                    <tree string="Keluhan Pelanggan" 
+                        decoration-info="state=='open'"
+                        decoration-warning="state=='in_progress'"
+                        decoration-success="state=='resolved'"
+                        decoration-muted="state=='closed'">
+                                <field name="title"/>
+                  <field name="incident_datetime"/>
+                  <field name="category"/>
+                  <field name="state" widget="badge"
+                      decoration-info="state=='open'"
+                      decoration-warning="state=='in_progress'"
+                      decoration-success="state=='resolved'"
+                      decoration-muted="state=='closed'"/>
+                      <field name="responsible_division"/>
+                  <field name="customer_name" optional="show"/>
+                  <field name="resolution_time" widget="float_time" optional="show"/>
+                 </tree>
+        </field>
+    </record>
+
+    <!-- Quick Create View (judul saja) -->
+    <record id="view_classico_complaint_quick_create" model="ir.ui.view">
+        <field name="name">classico.complaint.quick.create</field>
+        <field name="model">classico.complaint</field>
+        <field name="arch" type="xml">
+            <form string="Quick Create Keluhan">
+                <group>
+                    <field name="title" required="1" placeholder="Judul keluhan"/>
+                </group>
+            </form>
         </field>
     </record>
 
@@ -45,45 +56,65 @@
                     <field name="state" widget="statusbar" statusbar_visible="open,in_progress,resolved,closed"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" type="object" name="action_assign" icon="fa-clock-o">
-                            <field name="resolution_time" widget="statinfo" string="Waktu Resolusi (jam)"/>
-                        </button>
-                    </div>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" readonly="1"/>
+                            <field name="title" placeholder="Judul keluhan" required="1"/>
                         </h1>
                     </div>
                     <group>
                         <group string="Informasi Keluhan">
                             <field name="category" required="1"/>
-                            <field name="priority" required="1" widget="priority"/>
+                            <field name="priority" required="1"/>
                             <field name="incident_datetime" required="1"/>
-                            <field name="customer_name"/>
+                            <field name="customer_name" placeholder="Nama pelanggan (opsional)"/>
                         </group>
-                        <group string="Penanganan">
+                        <group string="Status dan Penanganan">
                             <field name="responsible_division"/>
-                            <field name="assigned_to"/>
                             <field name="follow_up_required"/>
                             <field name="reported_by" readonly="1"/>
                         </group>
                     </group>
-                    <group string="Deskripsi Keluhan">
-                        <field name="complaint_description" nolabel="1" required="1" 
-                               placeholder="Jelaskan detail keluhan pelanggan..."/>
-                    </group>
-                    <group string="Catatan Penyelesaian" invisible="state == 'open'">
-                        <field name="resolution_notes" nolabel="1" 
-                               placeholder="Jelaskan tindakan yang telah dilakukan untuk menyelesaikan keluhan..."/>
-                        <field name="resolution_datetime" readonly="1"/>
-                    </group>
+                    <notebook>
+                        <page string="Deskripsi Keluhan" name="description">
+                            <group col="2">
+                                <field name="complaint_description" nolabel="1" required="1" colspan="2"
+                                       placeholder="Jelaskan detail keluhan pelanggan..."/>
+                            </group>
+                        </page>
+                        <page string="Tindak Lanjut" name="followup">
+                            <field name="followup_ids"
+                                   context="{'default_complaint_id': active_id, 'default_status': (state == 'resolved' and 'done') or (state == 'in_progress' and 'in_progress') or 'pending'}">
+                                <tree editable="bottom"
+                                      decoration-info="status=='in_progress'"
+                                      decoration-warning="status=='pending'"
+                                      decoration-success="status=='done'">
+                                    <field name="update_datetime"/>
+                                    <field name="status" widget="badge"/>
+                                    <field name="note"/>
+                                    <field name="updated_by" readonly="1"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <field name="update_datetime"/>
+                                        <field name="status" widget="badge"/>
+                                        <field name="updated_by" readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="note" nolabel="1" placeholder="Catatan tindak lanjut..."/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Penyelesaian" name="resolution" invisible="state == 'open'">
+                            <group col="2">
+                                <field name="resolution_notes" nolabel="1" 
+                                       placeholder="Jelaskan tindakan yang telah dilakukan untuk menyelesaikan keluhan..."
+                                       colspan="2"/>
+                                <field name="resolution_datetime" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
             </form>
         </field>
     </record>
@@ -93,38 +124,77 @@
         <field name="name">classico.complaint.kanban</field>
         <field name="model">classico.complaint</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" class="o_kanban_mobile">
+            <kanban default_group_by="state" class="o_kanban_mobile" create="true" quick_create="true" quick_create_view_id="view_classico_complaint_quick_create" group_create="true">
                 <field name="name"/>
+                <field name="title"/>
                 <field name="category"/>
                 <field name="priority"/>
                 <field name="state"/>
                 <field name="complaint_description"/>
-                <field name="assigned_to"/>
+                <field name="responsible_division"/>
+                <field name="incident_datetime"/>
+                <field name="customer_name"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_global_click 
-                                           #{record.priority.raw_value == 'urgent' ? 'oe_kanban_color_2' : ''}
-                                           #{record.priority.raw_value == 'high' ? 'oe_kanban_color_5' : ''}">
+                                           #{record.state.raw_value == 'open' ? 'oe_kanban_color_3' : ''}
+                                           #{record.state.raw_value == 'in_progress' ? 'oe_kanban_color_2' : ''}
+                                           #{record.state.raw_value == 'resolved' ? 'oe_kanban_color_10' : ''}
+                                           #{record.state.raw_value == 'closed' ? 'oe_kanban_color_8' : ''}">
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_headings">
                                         <strong class="o_kanban_record_title">
-                                            <field name="name"/>
+                                            <field name="title"/>
                                         </strong>
+                                        <div class="o_kanban_record_subtitle">
+                                            <t t-if="record.state.raw_value == 'open'">
+                                                <span class="badge text-bg-info">Open</span>
+                                            </t>
+                                            <t t-if="record.state.raw_value == 'in_progress'">
+                                                <span class="badge text-bg-warning">In Progress</span>
+                                            </t>
+                                            <t t-if="record.state.raw_value == 'resolved'">
+                                                <span class="badge text-bg-success">Resolved</span>
+                                            </t>
+                                            <t t-if="record.state.raw_value == 'closed'">
+                                                <span class="badge text-bg-secondary">Closed</span>
+                                            </t>
+                                            <span> - </span>
+                                            <field name="name"/>
+                                        </div>
                                     </div>
-                                    <span class="float-right">
-                                        <field name="priority" widget="priority"/>
-                                    </span>
                                 </div>
                                 <div class="o_kanban_record_body">
-                                    <field name="complaint_description"/>
+                                    <div>
+                                        <field name="complaint_description"/>
+                                    </div>
+                                    <div class="o_text_overflow">
+                                        <field name="responsible_division"/>
+                                        <span> - </span>
+                                        <field name="incident_datetime"/>
+                                    </div>
                                 </div>
+                                <hr/>
                                 <div class="o_kanban_record_bottom">
                                     <div class="oe_kanban_bottom_left">
                                         <field name="category"/>
+                                        <span> - </span>
+                                        <field name="customer_name"/>
                                     </div>
                                     <div class="oe_kanban_bottom_right">
-                                        <field name="assigned_to" widget="many2one_avatar_user"/>
+                                        <t t-if="record.priority.raw_value == 'low'">
+                                            <span class="badge text-bg-secondary">Low</span>
+                                        </t>
+                                        <t t-if="record.priority.raw_value == 'medium'">
+                                            <span class="badge text-bg-info">Medium</span>
+                                        </t>
+                                        <t t-if="record.priority.raw_value == 'high'">
+                                            <span class="badge text-bg-warning">High</span>
+                                        </t>
+                                        <t t-if="record.priority.raw_value == 'urgent'">
+                                            <span class="badge text-bg-danger">Urgent</span>
+                                        </t>
                                     </div>
                                 </div>
                             </div>
@@ -142,11 +212,10 @@
         <field name="arch" type="xml">
             <search string="Cari Keluhan">
                 <field name="name"/>
+                <field name="title"/>
                 <field name="category"/>
                 <field name="customer_name"/>
-                <field name="assigned_to"/>
-                <filter string="Urgent" name="urgent" domain="[('priority', '=', 'urgent')]"/>
-                <filter string="High Priority" name="high" domain="[('priority', '=', 'high')]"/>
+                <field name="responsible_division"/>
                 <separator/>
                 <filter string="Open" name="open" domain="[('state', '=', 'open')]"/>
                 <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
@@ -154,13 +223,10 @@
                 <filter string="Closed" name="closed" domain="[('state', '=', 'closed')]"/>
                 <separator/>
                 <filter string="Perlu Follow Up" name="follow_up" domain="[('follow_up_required', '=', True)]"/>
-                <filter string="My Tickets" name="my_tickets" domain="[('assigned_to', '=', uid)]"/>
                 <group expand="0" string="Group By">
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Kategori" name="group_category" context="{'group_by': 'category'}"/>
-                    <filter string="Prioritas" name="group_priority" context="{'group_by': 'priority'}"/>
                     <filter string="Divisi" name="group_division" context="{'group_by': 'responsible_division'}"/>
-                    <filter string="Assigned To" name="group_assigned" context="{'group_by': 'assigned_to'}"/>
                 </group>
             </search>
         </field>
@@ -171,7 +237,7 @@
         <field name="name">Ticketing Keluhan Pelanggan</field>
         <field name="res_model">classico.complaint</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="context">{'search_default_open': 1, 'search_default_in_progress': 1}</field>
+        <field name="context">{'search_default_open': 1, 'search_default_in_progress': 1, 'create': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Buat tiket keluhan baru
