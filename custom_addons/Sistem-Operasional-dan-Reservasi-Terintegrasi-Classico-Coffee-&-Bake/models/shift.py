@@ -66,10 +66,12 @@ class ClassicoShiftReport(models.Model):
     )
     
     division = fields.Selection([
-        ('floor', 'Floor Service'),
+        ('floor', 'Floor Leader (Waiter/Waitress)'),
         ('kitchen', 'Kitchen'),
-        ('bar', 'Bar'),
-        ('bakery', 'Bakery')
+        ('bar', 'Barista'),
+        ('bakery', 'Bakery'),
+        ('stock_keeper', 'Stock Keeper'),
+        ('cashier', 'Cashier')
     ], string='Divisi', required=True, tracking=True)
     
     operational_condition = fields.Text(
@@ -150,6 +152,17 @@ class ClassicoShiftReport(models.Model):
         string='Catatan Operasional'
     )
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if 'name' in fields_list and not res.get('name'):
+            res['name'] = self.env['ir.sequence'].next_by_code('classico.shift.report') or 'New'
+        if not res.get('division'):
+            default_division = self.env.context.get('default_division')
+            if default_division:
+                res['division'] = default_division
+        return res
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -180,6 +193,17 @@ class ClassicoShiftReport(models.Model):
         """Kembalikan ke draft"""
         self.write({'state': 'draft'})
         return True
+
+    def write(self, vals):
+        for record in self:
+            if record.state == 'reviewed':
+                allowed_fields = {'state'}
+                extra_fields = set(vals) - allowed_fields
+                if extra_fields:
+                    raise ValidationError('Laporan yang sudah direview tidak boleh diedit.')
+                if vals.get('state') != 'draft':
+                    raise ValidationError('Laporan yang sudah direview hanya bisa direset ke draft.')
+        return super().write(vals)
 
     @api.constrains('report_date')
     def _check_report_date(self):
