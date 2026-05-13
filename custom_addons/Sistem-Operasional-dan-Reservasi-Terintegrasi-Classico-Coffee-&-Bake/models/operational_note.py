@@ -13,10 +13,12 @@ class ClassicoOperationalNote(models.Model):
     name = fields.Char(string='Nomor Catatan', required=True, copy=False, readonly=True, default='New')
     note_date = fields.Date(string='Tanggal', required=True, default=fields.Date.context_today, tracking=True)
     division = fields.Selection([
-        ('floor', 'Floor Service'),
+        ('floor', 'Floor Leader (Waiter/Waitress)'),
         ('kitchen', 'Kitchen'),
-        ('bar', 'Bar'),
+        ('bar', 'Barista'),
         ('bakery', 'Bakery'),
+        ('stock_keeper', 'Stock Keeper'),
+        ('cashier', 'Cashier'),
         ('management', 'Management'),
     ], string='Divisi', tracking=True)
     urgency = fields.Selection([
@@ -35,6 +37,11 @@ class ClassicoOperationalNote(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            shift_report_id = vals.get('shift_report_id')
+            if shift_report_id:
+                shift_report = self.env['classico.shift.report'].browse(shift_report_id)
+                if shift_report.state == 'reviewed':
+                    raise ValidationError('Catatan tidak bisa ditambahkan karena laporan sudah direview.')
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('classico.operational.note') or 'New'
         return super().create(vals_list)
@@ -52,3 +59,15 @@ class ClassicoOperationalNote(models.Model):
     def action_reopen(self):
         self.write({'state': 'open'})
         return True
+
+    def write(self, vals):
+        for record in self:
+            if record.shift_report_id and record.shift_report_id.state == 'reviewed':
+                raise ValidationError('Catatan tidak bisa diubah karena laporan sudah direview.')
+        return super().write(vals)
+
+    def unlink(self):
+        for record in self:
+            if record.shift_report_id and record.shift_report_id.state == 'reviewed':
+                raise ValidationError('Catatan tidak bisa dihapus karena laporan sudah direview.')
+        return super().unlink()

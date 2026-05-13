@@ -9,9 +9,9 @@
                   decoration-success="state=='reviewed'" decoration-muted="state=='draft'">
                 <field name="name"/>
                 <field name="report_date"/>
-                <field name="shift_type"/>
-                <field name="division"/>
-                <field name="submitted_by"/>
+                <field name="shift_type" widget="badge"/>
+                <field name="division" widget="badge"/>
+                <field name="submitted_by" optional="show"/>
                 <field name="state" widget="badge"
                        decoration-warning="state=='draft'"
                        decoration-info="state=='submitted'"
@@ -20,12 +20,31 @@
         </field>
     </record>
 
+    <!-- Quick Create View (tanpa input ID) -->
+    <record id="view_classico_shift_report_quick_create" model="ir.ui.view">
+        <field name="name">classico.shift.report.quick.create</field>
+        <field name="model">classico.shift.report</field>
+        <field name="arch" type="xml">
+            <form string="Quick Create Laporan Shift">
+                <group>
+                    <field name="name" readonly="1"/>
+                    <field name="shift_type" required="1"/>
+                    <field name="division" required="1"/>
+                    <field name="report_date"/>
+                </group>
+                <group>
+                    <field name="operational_condition" placeholder="Ringkas kondisi operasional..."/>
+                </group>
+            </form>
+        </field>
+    </record>
+
     <!-- Form View dengan template berbeda per divisi (OW-04) -->
     <record id="view_classico_shift_report_form" model="ir.ui.view">
         <field name="name">classico.shift.report.form</field>
         <field name="model">classico.shift.report</field>
         <field name="arch" type="xml">
-            <form string="Laporan Shift">
+            <form string="Laporan Shift" readonly="state == 'reviewed'">
                 <header>
                     <button name="action_submit" string="Submit Laporan" type="object" 
                             invisible="state != 'draft'" class="oe_highlight"/>
@@ -35,7 +54,7 @@
                             invisible="state not in ['submitted', 'reviewed']" class="btn-secondary"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,reviewed"/>
                 </header>
-                <sheet>
+                <sheet readonly="state == 'reviewed'">
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
@@ -56,66 +75,31 @@
                     </group>
                     
                     <notebook>
-                        <page string="Laporan Umum" name="general">
+                        <page string="Ringkasan Handover" name="general">
                             <group>
-                                <field name="operational_condition" required="1" 
-                                       placeholder="Deskripsikan kondisi operasional secara keseluruhan..."/>
+                                <group>
+                                    <field name="operational_condition" required="1" 
+                                           placeholder="Deskripsikan kondisi operasional secara keseluruhan..."/>
+                                </group>
+                                <group>
+                                    <field name="technical_issues" 
+                                           placeholder="Deskripsikan kendala teknis yang terjadi..."/>
+                                </group>
                             </group>
                             <group>
-                                <field name="technical_issues" 
-                                       placeholder="Deskripsikan kendala teknis yang terjadi..."/>
-                            </group>
-                            <group>
-                                <field name="special_instructions" 
-                                       placeholder="Instruksi penting untuk shift berikutnya..."/>
-                            </group>
-                            <group>
-                                <field name="unfinished_tasks" 
-                                       placeholder="Tugas yang belum terselesaikan..."/>
-                            </group>
-                        </page>
-                        
-                        <!-- Template khusus Floor Service -->
-                        <page string="Detail Floor Service" name="floor" 
-                              invisible="division != 'floor'">
-                            <group>
-                                <field name="floor_specific_notes" nolabel="1"
-                                       placeholder="Status meja, keluhan pelanggan, reservasi khusus, dll."/>
+                                <group>
+                                    <field name="special_instructions" 
+                                           placeholder="Instruksi penting untuk shift berikutnya..."/>
+                                </group>
+                                <group>
+                                    <field name="unfinished_tasks" 
+                                           placeholder="Tugas yang belum terselesaikan..."/>
+                                </group>
                             </group>
                         </page>
-                        
-                        <!-- Template khusus Kitchen -->
-                        <page string="Detail Kitchen" name="kitchen" 
-                              invisible="division != 'kitchen'">
-                            <group>
-                                <field name="kitchen_specific_notes" nolabel="1"
-                                       placeholder="Stok bahan baku, menu unavailable, peralatan rusak, dll."/>
-                            </group>
-                        </page>
-                        
-                        <!-- Template khusus Bar -->
-                        <page string="Detail Bar" name="bar" 
-                              invisible="division != 'bar'">
-                            <group>
-                                <field name="bar_specific_notes" nolabel="1"
-                                       placeholder="Stok minuman, ketersediaan ice, peralatan bar, dll."/>
-                            </group>
-                        </page>
-                        
-                        <!-- Template khusus Bakery -->
-                        <page string="Detail Bakery" name="bakery" 
-                              invisible="division != 'bakery'">
-                            <group>
-                                <field name="bakery_specific_notes" nolabel="1"
-                                       placeholder="Produk pre-order, stok bahan baku, produksi hari ini, dll."/>
-                            </group>
-                        </page>
+
                     </notebook>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="message_ids"/>
-                </div>
             </form>
         </field>
     </record>
@@ -125,22 +109,58 @@
         <field name="name">classico.shift.report.kanban</field>
         <field name="model">classico.shift.report</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="division" class="o_kanban_mobile">
+            <kanban default_group_by="division" class="o_kanban_mobile" create="true" quick_create="false" group_create="true">
                 <field name="name"/>
                 <field name="report_date"/>
                 <field name="shift_type"/>
                 <field name="division"/>
                 <field name="state"/>
+                <field name="submitted_by"/>
+                <field name="operational_condition"/>
                 <templates>
                     <t t-name="kanban-box">
-                        <div class="oe_kanban_global_click">
-                            <div class="oe_kanban_details">
-                                <strong><field name="name"/></strong>
-                                <ul>
-                                    <li><field name="report_date"/> - <field name="shift_type"/></li>
-                                    <li><field name="division"/></li>
-                                    <li><field name="state" widget="badge"/></li>
-                                </ul>
+                        <div t-attf-class="oe_kanban_global_click 
+                                           #{record.division.raw_value == 'floor' ? 'oe_kanban_color_3' : ''}
+                                           #{record.division.raw_value == 'kitchen' ? 'oe_kanban_color_5' : ''}
+                                           #{record.division.raw_value == 'bar' ? 'oe_kanban_color_2' : ''}
+                                           #{record.division.raw_value == 'bakery' ? 'oe_kanban_color_7' : ''}
+                                           #{record.division.raw_value == 'stock_keeper' ? 'oe_kanban_color_4' : ''}
+                                           #{record.division.raw_value == 'cashier' ? 'oe_kanban_color_6' : ''}">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                        <div class="o_kanban_record_subtitle">
+                                            <field name="shift_type" widget="badge"/>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_record_user">
+                                        <field name="submitted_by" widget="many2one_avatar_user"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div class="o_text_overflow">
+                                        <field name="operational_condition"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="report_date"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <t t-if="record.state.raw_value == 'draft'">
+                                            <span class="badge text-bg-secondary">Draft</span>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'submitted'">
+                                            <span class="badge text-bg-info">Submitted</span>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'reviewed'">
+                                            <span class="badge text-bg-success">Reviewed</span>
+                                        </t>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </t>
@@ -184,7 +204,7 @@
         <field name="name">Laporan Shift Digital</field>
         <field name="res_model">classico.shift.report</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="context">{'search_default_today': 1}</field>
+        <field name="context">{'search_default_today': 1, 'create': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Buat laporan shift baru

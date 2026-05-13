@@ -74,7 +74,7 @@ class ClassicoEvaluationReport(models.Model):
             )
             shift_summary = 'Laporan shift berdasarkan divisi: ' + ', '.join(
                 '%s=%s' % (division, len(shift_reports.filtered(lambda s, division=division: s.division == division)))
-                for division in ['floor', 'kitchen', 'bar', 'bakery']
+                for division in ['floor', 'kitchen', 'bar', 'bakery', 'stock_keeper', 'cashier']
             )
 
             record.write({
