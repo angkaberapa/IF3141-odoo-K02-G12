@@ -1,5 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- View untuk jadwal/alokasi meja per hari -->
+    <record id="view_classico_table_allocation_tree" model="ir.ui.view">
+        <field name="name">classico.table.allocation.tree</field>
+        <field name="model">classico.table.allocation</field>
+        <field name="arch" type="xml">
+            <tree string="Jadwal Reservasi Meja" decoration-success="state=='active'" decoration-muted="state!='active'">
+                <field name="start_datetime"/>
+                <field name="end_datetime"/>
+                <field name="table_id"/>
+                <field name="reservation_id"/>
+                <field name="seats_used"/>
+                <field name="state" widget="badge" decoration-success="state=='active'" decoration-muted="state!='active'"/>
+                <field name="placement_note"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_classico_table_allocation_form" model="ir.ui.view">
+        <field name="name">classico.table.allocation.form</field>
+        <field name="model">classico.table.allocation</field>
+        <field name="arch" type="xml">
+            <form string="Jadwal Reservasi Meja">
+                <sheet>
+                    <group>
+                        <group string="Reservasi">
+                            <field name="reservation_id"/>
+                            <field name="table_id"/>
+                            <field name="seats_used"/>
+                            <field name="state"/>
+                        </group>
+                        <group string="Waktu">
+                            <field name="start_datetime"/>
+                            <field name="end_datetime"/>
+                        </group>
+                    </group>
+                    <group string="Catatan Penempatan">
+                        <field name="placement_note" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_classico_table_allocation_search" model="ir.ui.view">
+        <field name="name">classico.table.allocation.search</field>
+        <field name="model">classico.table.allocation</field>
+        <field name="arch" type="xml">
+            <search string="Cari Jadwal Reservasi Meja">
+                <field name="reservation_id"/>
+                <field name="table_id"/>
+                <field name="start_datetime" string="Tanggal/Jam"/>
+                <filter string="Hari Ini" name="today"
+                        domain="[('start_datetime', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')), ('start_datetime', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter string="Jadwal Aktif" name="active_schedule" domain="[('state', '=', 'active')]"/>
+                <filter string="Jadwal Mendatang" name="upcoming" domain="[('start_datetime', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')), ('state', '=', 'active')]"/>
+                <separator/>
+                <filter string="Released" name="released" domain="[('state', '=', 'released')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Meja" name="group_table" context="{'group_by': 'table_id'}"/>
+                    <filter string="Reservasi" name="group_reservation" context="{'group_by': 'reservation_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Tanggal" name="group_start_date" context="{'group_by': 'start_datetime:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <!-- Kanban View - Visual Dashboard dengan warna -->
     <record id="view_classico_table_kanban" model="ir.ui.view">
         <field name="name">classico.table.kanban</field>
@@ -10,13 +78,16 @@
                 <field name="capacity"/>
                 <field name="state"/>
                 <field name="floor_section"/>
+                <field name="current_customer_info"/>
+                <field name="next_reservation_info"/>
                 <field name="notes"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_global_click 
                                            #{record.state.raw_value == 'available' ? 'oe_kanban_color_3' : ''}
                                            #{record.state.raw_value == 'occupied' ? 'oe_kanban_color_2' : ''}
-                                           #{record.state.raw_value == 'reserved' ? 'oe_kanban_color_5' : ''}">
+                                           #{record.state.raw_value == 'reserved' ? 'oe_kanban_color_5' : ''}
+                                           #{record.state.raw_value == 'unavailable' ? 'oe_kanban_color_1' : ''}">
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_headings">
@@ -32,7 +103,12 @@
                                     <field name="state" widget="badge" 
                                            decoration-success="state=='available'"
                                            decoration-danger="state=='occupied'"
-                                           decoration-warning="state=='reserved'"/>
+                                           decoration-warning="state=='reserved'"
+                                           decoration-muted="state=='unavailable'"/>
+                                    <div class="mt8">
+                                        <small><strong>Saat ini:</strong> <field name="current_customer_info"/></small><br/>
+                                        <small><strong>Berikutnya:</strong> <field name="next_reservation_info"/></small>
+                                    </div>
                                 </div>
                                 <div class="o_kanban_record_bottom">
                                     <div class="oe_kanban_bottom_left">
@@ -48,6 +124,9 @@
                                         <button name="action_set_reserved" type="object" 
                                                 string="Dipesan" class="btn btn-sm btn-warning"
                                                 invisible="state == 'reserved'"/>
+                                        <button name="action_set_unavailable" type="object" 
+                                                string="Tidak Tersedia" class="btn btn-sm btn-secondary"
+                                                invisible="state == 'unavailable'"/>
                                     </div>
                                 </div>
                             </div>
@@ -66,15 +145,16 @@
             <tree string="Kapasitas Meja" 
                   decoration-success="state=='available'" 
                   decoration-danger="state=='occupied'" 
-                  decoration-warning="state=='reserved'">
+                  decoration-warning="state=='reserved'"
+                  decoration-muted="state=='unavailable'">
                 <field name="name"/>
                 <field name="capacity"/>
                 <field name="floor_section"/>
                 <field name="state" widget="badge"
                        decoration-success="state=='available'"
                        decoration-danger="state=='occupied'"
-                       decoration-warning="state=='reserved'"/>
-                <field name="current_reservation_id"/>
+                       decoration-warning="state=='reserved'"
+                       decoration-muted="state=='unavailable'"/>
                 <field name="last_updated" widget="relative"/>
                 <field name="updated_by"/>
             </tree>
@@ -94,11 +174,15 @@
                             class="btn-danger" invisible="state == 'occupied'"/>
                     <button name="action_set_reserved" string="Set Dipesan" type="object" 
                             class="btn-warning" invisible="state == 'reserved'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="available,occupied,reserved"/>
+                    <button name="action_set_unavailable" string="Set Tidak Tersedia" type="object" 
+                            class="btn-secondary" invisible="state == 'unavailable'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="available,occupied,reserved,unavailable"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <!-- Placeholder untuk button box di masa depan -->
+                        <button name="action_view_allocations" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <field name="active_reservation_count" widget="statinfo" string="Jadwal Aktif"/>
+                        </button>
                     </div>
                     <group>
                         <group string="Informasi Meja">
@@ -107,14 +191,31 @@
                             <field name="floor_section"/>
                         </group>
                         <group string="Status Terkini">
+                            <field name="current_customer_info" readonly="1"/>
+                            <field name="next_reservation_info" readonly="1"/>
                             <field name="current_reservation_id" readonly="1"/>
+                            <field name="next_reservation_id" readonly="1"/>
                             <field name="last_updated" readonly="1"/>
                             <field name="updated_by" readonly="1"/>
                         </group>
                     </group>
-                    <group string="Catatan">
-                        <field name="notes" nolabel="1" placeholder="Catatan khusus tentang meja ini..."/>
-                    </group>
+                    <notebook>
+                        <page string="Jadwal &amp; Riwayat Reservasi">
+                            <field name="allocation_ids" readonly="1">
+                                <tree decoration-success="state=='active'" decoration-muted="state!='active'">
+                                    <field name="start_datetime"/>
+                                    <field name="end_datetime"/>
+                                    <field name="reservation_id"/>
+                                    <field name="seats_used"/>
+                                    <field name="state"/>
+                                    <field name="placement_note"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Catatan">
+                            <field name="notes" nolabel="1" placeholder="Catatan khusus tentang meja ini..."/>
+                        </page>
+                    </notebook>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
@@ -135,6 +236,7 @@
                 <filter string="Tersedia" name="available" domain="[('state', '=', 'available')]"/>
                 <filter string="Terisi" name="occupied" domain="[('state', '=', 'occupied')]"/>
                 <filter string="Dipesan" name="reserved" domain="[('state', '=', 'reserved')]"/>
+                <filter string="Tidak Tersedia" name="unavailable" domain="[('state', '=', 'unavailable')]"/>
                 <separator/>
                 <filter string="Indoor" name="indoor" domain="[('floor_section', '=', 'indoor')]"/>
                 <filter string="Outdoor" name="outdoor" domain="[('floor_section', '=', 'outdoor')]"/>
@@ -158,10 +260,23 @@
                 Tambah meja baru
             </p>
             <p>
-                Dashboard ini menampilkan status real-time seluruh meja di kafe.
-                - Hijau: Tersedia
-                - Merah: Terisi
-                - Kuning: Dipesan
+                Dashboard ini menampilkan status fisik real-time seluruh meja di kafe.
+                Reservasi masa depan tidak mengubah status fisik meja; lihat menu Jadwal Reservasi Meja untuk jadwal per tanggal.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_classico_table_schedule" model="ir.actions.act_window">
+        <field name="name">Jadwal Reservasi Meja</field>
+        <field name="res_model">classico.table.allocation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_today': 1, 'search_default_active_schedule': 1, 'search_default_group_table': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada jadwal reservasi meja untuk tanggal ini
+            </p>
+            <p>
+                Tampilan default adalah jadwal hari ini. Gunakan filter tanggal pada search bar untuk melihat jadwal hari lain.
             </p>
         </field>
     </record>
@@ -172,4 +287,10 @@
               parent="menu_classico_root"
               action="action_classico_table"
               sequence="20"/>
+
+    <menuitem id="menu_classico_table_schedule"
+              name="Jadwal Reservasi Meja"
+              parent="menu_classico_root"
+              action="action_classico_table_schedule"
+              sequence="21"/>
 </odoo>

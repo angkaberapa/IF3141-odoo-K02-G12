@@ -12,8 +12,10 @@
                 <field name="customer_phone"/>
                 <field name="reservation_date"/>
                 <field name="reservation_time" widget="float_time"/>
+                <field name="duration_hours"/>
                 <field name="guest_count"/>
                 <field name="table_id"/>
+                <field name="allocated_capacity"/>
                 <field name="state" widget="badge" 
                        decoration-success="state=='confirmed'"
                        decoration-info="state=='arrived'"
@@ -30,6 +32,10 @@
         <field name="arch" type="xml">
             <form string="Reservasi">
                 <header>
+                    <button name="action_check_availability" string="Cek Rekomendasi Meja" type="object" 
+                            invisible="state not in ['draft', 'confirmed']" class="btn-secondary"/>
+                    <button name="action_allocate_tables" string="Alokasikan Meja" type="object" 
+                            invisible="state not in ['draft', 'confirmed']" class="btn-secondary"/>
                     <button name="action_confirm" string="Konfirmasi" type="object" 
                             invisible="state != 'draft'" class="oe_highlight"/>
                     <button name="action_arrive" string="Pelanggan Datang" type="object" 
@@ -50,6 +56,7 @@
                     </div>
                     <group>
                         <group string="Informasi Pelanggan">
+                            <field name="partner_id" options="{'no_create_edit': False}"/>
                             <field name="customer_name" required="1"/>
                             <field name="customer_phone" widget="phone" required="1"/>
                             <field name="guest_count" required="1"/>
@@ -57,13 +64,44 @@
                         <group string="Detail Reservasi">
                             <field name="reservation_date" required="1"/>
                             <field name="reservation_time" widget="float_time" required="1"/>
-                            <field name="table_id" options="{'no_create': True}"/>
-                            <field name="created_by" readonly="1"/>
+                            <field name="duration_hours" required="1"/>
+                            <field name="buffer_hours" readonly="1"/>
+                            <field name="reservation_datetime" readonly="1"/>
+                            <field name="reservation_end_datetime" readonly="1"/>
+                            <div class="o_form_label" colspan="2">
+                                Catatan: waktu lengkap mengikuti timezone user Odoo.
+                            </div>
                         </group>
                     </group>
-                    <group string="Permintaan Khusus">
-                        <field name="special_request" nolabel="1" placeholder="Contoh: Dekat jendela, high chair untuk anak, dll."/>
+                    <group>
+                        <group string="Alokasi &amp; Ketersediaan">
+                            <field name="table_id" options="{'no_create': True}"/>
+                            <field name="allocated_capacity" readonly="1"/>
+                            <field name="availability_message" readonly="1"/>
+                            <field name="created_by" readonly="1"/>
+                        </group>
+                        <group string="Rekomendasi Meja" colspan="2">
+                            <field name="recommended_tables_html" nolabel="1" readonly="1" widget="html"/>
+                            <field name="recommended_tables_text" invisible="1"/>
+                        </group>
                     </group>
+                    <notebook>
+                        <page string="Alokasi Meja">
+                            <field name="allocation_ids" readonly="state in ['done', 'cancelled']">
+                                <tree editable="bottom" decoration-success="state=='active'" decoration-muted="state!='active'">
+                                    <field name="table_id" options="{'no_create': True}"/>
+                                    <field name="seats_used"/>
+                                    <field name="start_datetime"/>
+                                    <field name="end_datetime"/>
+                                    <field name="state"/>
+                                    <field name="placement_note"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Permintaan Khusus">
+                            <field name="special_request" nolabel="1" placeholder="Contoh: Dekat jendela, high chair untuk anak, dll."/>
+                        </page>
+                    </notebook>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
@@ -83,7 +121,9 @@
                 <field name="customer_name"/>
                 <field name="reservation_date"/>
                 <field name="reservation_time"/>
+                <field name="duration_hours"/>
                 <field name="guest_count"/>
+                <field name="allocated_capacity"/>
                 <field name="state"/>
                 <templates>
                     <t t-name="kanban-box">
@@ -92,8 +132,8 @@
                                 <strong><field name="name"/></strong>
                                 <ul>
                                     <li><field name="customer_name"/></li>
-                                    <li><field name="reservation_date"/> - <field name="reservation_time" widget="float_time"/></li>
-                                    <li>Tamu: <field name="guest_count"/></li>
+                                    <li><field name="reservation_date"/> - <field name="reservation_time" widget="float_time"/> (<field name="duration_hours"/> jam)</li>
+                                    <li>Tamu: <field name="guest_count"/> | Kapasitas: <field name="allocated_capacity"/></li>
                                 </ul>
                             </div>
                         </div>
@@ -113,6 +153,7 @@
                 <field name="customer_name"/>
                 <field name="customer_phone"/>
                 <field name="reservation_date"/>
+                <field name="table_id"/>
                 <filter string="Hari Ini" name="today" 
                         domain="[('reservation_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter string="Minggu Ini" name="this_week" 
@@ -121,10 +162,12 @@
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
                 <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
                 <filter string="Arrived" name="arrived" domain="[('state', '=', 'arrived')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
                 <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
                 <group expand="0" string="Group By">
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Tanggal" name="group_date" context="{'group_by': 'reservation_date'}"/>
+                    <filter string="Meja Preferensi" name="group_table" context="{'group_by': 'table_id'}"/>
                 </group>
             </search>
         </field>
@@ -141,8 +184,8 @@
                 Buat reservasi pelanggan baru
             </p>
             <p>
-                Sistem manajemen reservasi menggantikan pencatatan manual via WhatsApp.
-                Klik tombol 'Create' untuk menambah reservasi baru.
+                Reservasi langsung dapat dialokasikan ke meja. Sistem mengecek kapasitas, bentrok jadwal,
+                dan jeda minimal 1 jam antar reservasi pada meja yang sama.
             </p>
         </field>
     </record>
