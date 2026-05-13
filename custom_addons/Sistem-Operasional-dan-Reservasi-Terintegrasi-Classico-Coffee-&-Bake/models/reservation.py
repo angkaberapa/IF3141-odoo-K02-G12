@@ -9,6 +9,7 @@ import pytz
 
 RESERVATION_BLOCKING_STATES = ['draft', 'confirmed', 'arrived']
 RESERVATION_BUFFER_HOURS = 1.0
+TABLE_BLOCKING_PHYSICAL_STATES = ['occupied', 'reserved', 'unavailable']
 
 
 class ClassicoReservation(models.Model):
@@ -300,8 +301,24 @@ class ClassicoReservation(models.Model):
 
     def _get_available_tables(self):
         self.ensure_one()
-        tables = self.env['classico.table'].search([('state', '!=', 'unavailable')], order='capacity asc, name asc')
+        # Meja yang sedang terisi walk-in / reserved manual / unavailable tidak boleh
+        # direkomendasikan atau dialokasikan untuk reservasi baru. Waiter perlu
+        # mengubah status meja menjadi Tersedia terlebih dahulu saat meja sudah kosong.
+        tables = self.env['classico.table'].search([
+            ('state', 'not in', TABLE_BLOCKING_PHYSICAL_STATES)
+        ], order='capacity asc, name asc')
         return tables.filtered(lambda table: not self._get_overlapping_allocations(table))
+
+    def _get_physical_state_block_reason(self, table):
+        self.ensure_one()
+        state_label = dict(table._fields['state'].selection).get(table.state, table.state)
+        if table.state == 'occupied':
+            return '%s sedang Terisi oleh walk-in/pelanggan saat ini.' % self._table_display_name(table)
+        if table.state == 'reserved':
+            return '%s sedang berstatus Dipesan secara manual.' % self._table_display_name(table)
+        if table.state == 'unavailable':
+            return '%s sedang Tidak Tersedia.' % self._table_display_name(table)
+        return '%s sedang berstatus %s.' % (self._table_display_name(table), state_label)
 
     def _table_display_name(self, table):
         return table.name if table.name.lower().startswith('meja') else 'Meja %s' % table.name
@@ -342,7 +359,7 @@ class ClassicoReservation(models.Model):
         if not recommendations:
             return '''
                 <div class="alert alert-warning mb-0" role="alert">
-                    Belum ada kombinasi meja yang memenuhi kapasitas, slot waktu, dan jeda minimal 1 jam.
+                    Belum ada kombinasi meja yang memenuhi kapasitas, status fisik meja saat ini, slot waktu, dan jeda minimal 1 jam.
                 </div>
             '''
 
@@ -370,7 +387,7 @@ class ClassicoReservation(models.Model):
                 <table class="table table-sm table-borderless mb-0">
                     <tbody>%s</tbody>
                 </table>
-                <small class="text-muted">Rekomendasi sudah memperhitungkan kapasitas, jadwal bentrok, dan jeda minimal 1 jam.</small>
+                <small class="text-muted">Rekomendasi sudah memperhitungkan kapasitas, status fisik meja saat ini, jadwal bentrok, dan jeda minimal 1 jam.</small>
             </div>
         ''' % ''.join(rows)
 
@@ -381,7 +398,7 @@ class ClassicoReservation(models.Model):
         if recommendations:
             message += '\n\nRekomendasi meja yang memungkinkan:\n%s' % recommendations
         else:
-            message += '\n\nTidak ada rekomendasi meja yang memenuhi kapasitas, slot waktu, dan jeda minimal 1 jam.'
+            message += '\n\nTidak ada rekomendasi meja yang memenuhi kapasitas, status fisik meja saat ini, slot waktu, dan jeda minimal 1 jam.'
         raise ValidationError(message)
 
     def _select_tables_for_capacity(self):
@@ -390,8 +407,8 @@ class ClassicoReservation(models.Model):
             raise ValidationError('Lengkapi tanggal, waktu, dan durasi reservasi terlebih dahulu')
 
         if self.table_id:
-            if self.table_id.state == 'unavailable':
-                self._raise_no_capacity_error('Meja preferensi sedang tidak tersedia.')
+            if self.table_id.state in TABLE_BLOCKING_PHYSICAL_STATES:
+                self._raise_no_capacity_error(self._get_physical_state_block_reason(self.table_id))
             if self._get_overlapping_allocations(self.table_id):
                 self._raise_no_capacity_error('Meja preferensi sudah memiliki reservasi lain pada slot tersebut atau jeda 1 jam tidak terpenuhi.')
             if self.table_id.capacity >= self.guest_count:
