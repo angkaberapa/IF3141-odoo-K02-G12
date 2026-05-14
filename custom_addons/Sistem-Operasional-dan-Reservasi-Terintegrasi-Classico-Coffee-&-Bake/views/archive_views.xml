@@ -93,21 +93,74 @@
     </record>
 
     <!-- Menu untuk Laporan -->
-    <menuitem id="menu_classico_report_reservation"
-              name="Analisis Reservasi"
-              parent="menu_classico_reports"
+    <!-- Graph View - Operational Notes Trend -->
+    <record id="view_classico_operational_note_graph" model="ir.ui.view">
+        <field name="name">classico.operational.note.graph</field>
+        <field name="model">classico.operational.note</field>
+        <field name="arch" type="xml">
+            <graph string="Trend Catatan Operasional" type="bar">
+                <field name="division"/>
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View - Operational Notes Analysis -->
+    <record id="view_classico_operational_note_pivot" model="ir.ui.view">
+        <field name="name">classico.operational.note.pivot</field>
+        <field name="model">classico.operational.note</field>
+        <field name="arch" type="xml">
+            <pivot string="Analisis Catatan">
+                <field name="note_date" type="row" interval="week"/>
+                <field name="division" type="row"/>
+                <field name="urgency" type="col"/>
+                <field name="id" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Action - Operational Notes Dashboard -->
+    <record id="action_classico_dashboard_operational_note" model="ir.actions.act_window">
+        <field name="name">Catatan Operasional</field>
+        <field name="res_model">classico.operational.note</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="domain">[('state', '=', 'open')]</field>
+        <field name="context">{'group_by': ['division']}</field>
+    </record>
+
+    <!-- Tab 1: Histori Reservasi -->
+    <menuitem id="menu_classico_archive_reservation"
+              name="Histori Reservasi"
+              parent="menu_classico_archive"
               action="action_classico_dashboard_reservation"
               sequence="10"/>
 
-    <menuitem id="menu_classico_report_complaint"
-              name="Analisis Keluhan"
-              parent="menu_classico_reports"
-              action="action_classico_dashboard_complaint"
+    <!-- Tab 2: Analisis Shift -->
+    <menuitem id="menu_classico_archive_shift"
+              name="Analisis Shift"
+              parent="menu_classico_archive"
+              action="action_classico_dashboard_shift"
               sequence="20"/>
 
-    <menuitem id="menu_classico_report_shift"
-              name="Analisis Shift"
-              parent="menu_classico_reports"
-              action="action_classico_dashboard_shift"
+    <!-- Tab 3: Trend Keluhan -->
+    <menuitem id="menu_classico_archive_complaint"
+              name="Trend Keluhan"
+              parent="menu_classico_archive"
+              action="action_classico_dashboard_complaint"
               sequence="30"/>
+
+    <!-- Tab 4: Catatan Operasional (NEW) -->
+    <menuitem id="menu_classico_archive_operational_note"
+              name="Catatan Operasional"
+              parent="menu_classico_archive"
+              action="action_classico_dashboard_operational_note"
+              sequence="35"/>
+
+    <!-- Tab 5: Laporan Evaluasi -->
+    <menuitem id="menu_classico_archive_evaluation_link"
+              name="Laporan Evaluasi"
+              parent="menu_classico_archive"
+              action="action_classico_evaluation_report"
+              sequence="40"/>
+
 </odoo>

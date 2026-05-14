@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_classico_operational_note_tree" model="ir.ui.view">
+        <field name="name">classico.operational.note.tree</field>
+        <field name="model">classico.operational.note</field>
+        <field name="arch" type="xml">
+            <tree string="Catatan Operasional"
+                  decoration-danger="urgency=='urgent'"
+                  decoration-warning="urgency=='important'"
+                  decoration-success="urgency=='normal'"
+                  decoration-muted="state=='archived'">
+                <field name="name" decoration-bf="1"/>
+                <field name="note_date"/>
+                <field name="division"/>
+                <field name="urgency" widget="badge" 
+                       decoration-danger="urgency=='urgent'"
+                       decoration-warning="urgency=='important'"
+                       decoration-success="urgency=='normal'"/>
+                <field name="description"/>
+                <field name="created_by"/>
+                <field name="shift_report_id" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state=='open'"
+                       decoration-muted="state=='archived'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_classico_operational_note_form" model="ir.ui.view">
+        <field name="name">classico.operational.note.form</field>
+        <field name="model">classico.operational.note</field>
+        <field name="arch" type="xml">
+            <form string="Catatan Operasional">
+                <header>
+                    <button name="action_archive" 
+                            string="Archive" 
+                            type="object" 
+                            class="btn-warning"
+                            invisible="state == 'archived'"/>
+                    <button name="action_reopen" 
+                            string="Reopen" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="state == 'open'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="open,archived"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="note_date"/>
+                            <field name="division"/>
+                            <field name="urgency" widget="radio"/>
+                        </group>
+                        <group>
+                            <field name="created_by" readonly="1"/>
+                            <field name="shift_report_id" 
+                                   domain="[('state', 'in', ['draft', 'submitted'])]"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Tuliskan catatan operasional harian di sini..." nolabel="1"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_classico_operational_note_kanban" model="ir.ui.view">
+        <field name="name">classico.operational.note.kanban</field>
+        <field name="model">classico.operational.note</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" default_group_by="urgency">
+                <field name="name"/>
+                <field name="note_date"/>
+                <field name="division"/>
+                <field name="urgency"/>
+                <field name="state"/>
+                <field name="created_by"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click 
+                                          #{record.urgency.raw_value == 'urgent' ? 'border-danger' : 
+                                            record.urgency.raw_value == 'important' ? 'border-warning' : 'border-success'}">
+                            <div class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title">
+                                    <div class="o_primary">
+                                        <strong><field name="name"/></strong>
+                                    </div>
+                                    <div class="text-muted">
+                                        <i class="fa fa-calendar"/> <field name="note_date"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_card_content">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span class="badge badge-pill" 
+                                              t-attf-class="badge-#{record.urgency.raw_value == 'urgent' ? 'danger' : 
+                                                                     record.urgency.raw_value == 'important' ? 'warning' : 'success'}">
+                                            <field name="urgency"/>
+                                        </span>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <span class="badge badge-secondary">
+                                            <field name="state"/>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <strong>Division:</strong> <field name="division"/>
+                                </div>
+                                <div class="mt-1 text-muted">
+                                    <field name="description" widget="text"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_card_footer">
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <img t-att-src="kanban_image('res.users', 'avatar_128', record.created_by.raw_value)" 
+                                             alt="User" 
+                                             class="oe_kanban_avatar o_image_24_cover mr-1"/>
+                                        <field name="created_by"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_classico_operational_note_search" model="ir.ui.view">
+        <field name="name">classico.operational.note.search</field>
+        <field name="model">classico.operational.note</field>
+        <field name="arch" type="xml">
+            <search string="Cari Catatan Operasional">
+                <field name="name" string="Nomor Catatan"/>
+                <field name="description" string="Deskripsi"/>
+                <field name="division" string="Divisi"/>
+                <field name="created_by" string="Dibuat Oleh"/>
+                
+                <!-- Filters -->
+                <filter string="Open" name="filter_open" domain="[('state', '=', 'open')]"/>
+                <filter string="Archived" name="filter_archived" domain="[('state', '=', 'archived')]"/>
+                
+                <separator/>
+                <filter string="Urgent" name="filter_urgent" domain="[('urgency', '=', 'urgent')]"/>
+                <filter string="Important" name="filter_important" domain="[('urgency', '=', 'important')]"/>
+                <filter string="Normal" name="filter_normal" domain="[('urgency', '=', 'normal')]"/>
+                
+                <separator/>
+                <filter string="Floor" name="filter_floor" domain="[('division', '=', 'floor')]"/>
+                <filter string="Kitchen" name="filter_kitchen" domain="[('division', '=', 'kitchen')]"/>
+                <filter string="Bar" name="filter_bar" domain="[('division', '=', 'bar')]"/>
+                <filter string="Bakery" name="filter_bakery" domain="[('division', '=', 'bakery')]"/>
+                <filter string="Management" name="filter_management" domain="[('division', '=', 'management')]"/>
+                
+                <separator/>
+                <filter string="Today" name="filter_today" domain="[('note_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="This Week" name="filter_this_week" 
+                        domain="[('note_date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                 ('note_date', '&lt;=', (context_today() + datetime.timedelta(days=6-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <filter string="This Month" name="filter_this_month" 
+                        domain="[('note_date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Division" name="group_division" context="{'group_by': 'division'}"/>
+                    <filter string="Urgency" name="group_urgency" context="{'group_by': 'urgency'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'note_date:month'}"/>
+                    <filter string="Created By" name="group_created_by" context="{'group_by': 'created_by'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_classico_operational_note" model="ir.actions.act_window">
+        <field name="name">Catatan Operasional</field>
+        <field name="res_model">classico.operational.note</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="search_view_id" ref="view_classico_operational_note_search"/>
+        <field name="context">{'search_default_filter_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat catatan operasional baru
+            </p>
+            <p>
+                Dokumentasikan kejadian penting, observasi, atau reminder operasional harian.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_classico_operational_note_root"
+              name="Catatan Operasional"
+              parent="menu_classico_root"
+              action="action_classico_operational_note"
+              sequence="45"/>
+
+</odoo>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_classico_evaluation_report_tree" model="ir.ui.view">
+        <field name="name">classico.evaluation.report.tree</field>
+        <field name="model">classico.evaluation.report</field>
+        <field name="arch" type="xml">
+            <tree string="Laporan Evaluasi" 
+                  decoration-success="state=='generated'"
+                  decoration-muted="state=='draft'">
+                <field name="name" decoration-bf="1"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="total_reservations" sum="Total"/>
+                <field name="total_complaints" sum="Total"/>
+                <field name="total_shift_reports" sum="Total"/>
+                <field name="total_operational_notes" sum="Total"/>
+                <field name="generated_by"/>
+                <field name="generated_at"/>
+                <field name="state" widget="badge"
+                       decoration-muted="state=='draft'"
+                       decoration-success="state=='generated'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_classico_evaluation_report_form" model="ir.ui.view">
+        <field name="name">classico.evaluation.report.form</field>
+        <field name="model">classico.evaluation.report</field>
+        <field name="arch" type="xml">
+            <form string="Laporan Evaluasi" create="false" delete="false">
+                <header>
+                    <button name="action_generate" 
+                            string="Generate Report" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="state == 'generated'"/>
+                    <button name="%(action_report_evaluation)d" 
+                            string="Download PDF" 
+                            type="action" 
+                            class="btn-success"
+                            invisible="state != 'generated'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,generated"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="dummy_action" icon="fa-calendar">
+                            <field name="total_reservations" widget="statinfo" string="Reservasi"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="dummy_action" icon="fa-ticket">
+                            <field name="total_complaints" widget="statinfo" string="Keluhan"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="dummy_action" icon="fa-clipboard">
+                            <field name="total_shift_reports" widget="statinfo" string="Laporan Shift"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="dummy_action" icon="fa-sticky-note">
+                            <field name="total_operational_notes" widget="statinfo" string="Catatan"/>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <div class="o_row" style="margin-top: 10px;">
+                            <span class="text-muted" style="font-size: 16px;">Periode: </span>
+                            <field name="date_start" readonly="1" class="oe_inline" style="font-size: 16px;"/> 
+                            <span class="text-muted" style="font-size: 16px;"> s/d </span>
+                            <field name="date_end" readonly="1" class="oe_inline" style="font-size: 16px;"/>
+                        </div>
+                    </div>
+                    
+                    <group style="margin-top: 20px;">
+                        <group>
+                            <field name="generated_by" readonly="1"/>
+                            <field name="generated_at" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <!-- PDF Viewer -->
+                    <div style="margin-top: 20px;" invisible="state != 'generated'">
+                        <div style="text-align: center; padding: 10px; background-color: #f0f0f0; border-radius: 5px; margin-bottom: 10px;">
+                            <span style="font-size: 14px; color: #666;">Laporan PDF</span>
+                        </div>
+                        <field name="pdf_viewer" nolabel="1" widget="html"/>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 20px; text-align: center; background-color: #fff3cd; border-radius: 5px;" invisible="state == 'generated'">
+                        <p style="margin: 0; color: #856404; font-size: 14px;">
+                            Klik tombol "Generate Report" untuk membuat laporan dan melihat PDF
+                        </p>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_classico_evaluation_report_search" model="ir.ui.view">
+        <field name="name">classico.evaluation.report.search</field>
+        <field name="model">classico.evaluation.report</field>
+        <field name="arch" type="xml">
+            <search string="Cari Laporan Evaluasi">
+                <field name="name" string="Nomor Laporan"/>
+                <field name="generated_by" string="Dibuat Oleh"/>
+                
+                <!-- Filters -->
+                <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Generated" name="filter_generated" domain="[('state', '=', 'generated')]"/>
+                
+                <separator/>
+                <filter string="This Week" name="filter_this_week"
+                        domain="[('date_start', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter string="This Month" name="filter_this_month"
+                        domain="[('date_start', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="Last 3 Months" name="filter_last_3_months"
+                        domain="[('date_start', '&gt;=', (context_today() - datetime.timedelta(days=90)).strftime('%Y-%m-%d'))]"/>
+                
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Generated By" name="group_generated_by" context="{'group_by': 'generated_by'}"/>
+                    <filter string="Start Date" name="group_date_start" context="{'group_by': 'date_start:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Graph View - Trend Analysis -->
+    <record id="view_classico_evaluation_report_graph" model="ir.ui.view">
+        <field name="name">classico.evaluation.report.graph</field>
+        <field name="model">classico.evaluation.report</field>
+        <field name="arch" type="xml">
+            <graph string="Trend Evaluasi" type="line" stacked="False">
+                <field name="date_start" interval="month"/>
+                <field name="total_reservations" type="measure"/>
+                <field name="total_complaints" type="measure"/>
+                <field name="total_shift_reports" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View - Multi-dimensional Analysis -->
+    <record id="view_classico_evaluation_report_pivot" model="ir.ui.view">
+        <field name="name">classico.evaluation.report.pivot</field>
+        <field name="model">classico.evaluation.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Analisis Evaluasi">
+                <field name="date_start" type="row" interval="month"/>
+                <field name="state" type="col"/>
+                <field name="total_reservations" type="measure"/>
+                <field name="total_complaints" type="measure"/>
+                <field name="total_shift_reports" type="measure"/>
+                <field name="total_operational_notes" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_classico_evaluation_report" model="ir.actions.act_window">
+        <field name="name">Laporan Evaluasi</field>
+        <field name="res_model">classico.evaluation.report</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
+        <field name="search_view_id" ref="view_classico_evaluation_report_search"/>
+        <field name="context">{'search_default_filter_generated': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Generate laporan evaluasi operasional
+            </p>
+            <p>
+                Klik "Generate Laporan Baru" untuk membuat laporan evaluasi dengan periode tertentu.
+            </p>
+        </field>
+    </record>
+
+
+
+</odoo>

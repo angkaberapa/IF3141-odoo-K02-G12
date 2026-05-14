@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        
+        <record id="operational_note_1" model="classico.operational.note">
+            <field name="note_date" eval="(DateTime.now() - timedelta(days=1)).date()"/>
+            <field name="division">floor</field>
+            <field name="urgency">urgent</field>
+            <field name="description">AC rusak di area indoor section. Perlu perbaikan segera karena cuaca panas. Customer komplain.</field>
+            <field name="state">open</field>
+        </record>
+
+        <record id="operational_note_2" model="classico.operational.note">
+            <field name="note_date" eval="(DateTime.now() - timedelta(days=2)).date()"/>
+            <field name="division">kitchen</field>
+            <field name="urgency">important</field>
+            <field name="description">Stok bahan baku pasta rendah. Perlu restock untuk weekend rush.</field>
+            <field name="state">open</field>
+        </record>
+
+        <record id="operational_note_3" model="classico.operational.note">
+            <field name="note_date" eval="(DateTime.now() - timedelta(days=3)).date()"/>
+            <field name="division">bar</field>
+            <field name="urgency">normal</field>
+            <field name="description">Mesin espresso sudah di-maintenance. Berjalan normal.</field>
+            <field name="state">archived</field>
+        </record>
+
+        <record id="operational_note_4" model="classico.operational.note">
+            <field name="note_date" eval="(DateTime.now() - timedelta(days=1)).date()"/>
+            <field name="division">bakery</field>
+            <field name="urgency">important</field>
+            <field name="description">Oven 2 temperatur tidak stabil. Perlu kalibrasi oleh teknisi.</field>
+            <field name="state">open</field>
+        </record>
+
+        <record id="operational_note_5" model="classico.operational.note">
+            <field name="note_date" eval="DateTime.now().date()"/>
+            <field name="division">stock_keeper</field>
+            <field name="urgency">normal</field>
+            <field name="description">Stock opname mingguan selesai. Tidak ada missing item.</field>
+            <field name="state">open</field>
+        </record>
+
+        <record id="operational_note_6" model="classico.operational.note">
+            <field name="note_date" eval="(DateTime.now() - timedelta(days=4)).date()"/>
+            <field name="division">cashier</field>
+            <field name="urgency">urgent</field>
+            <field name="description">Printer kasir 1 error, tidak bisa print struk. Sudah ganti ke printer backup.</field>
+            <field name="state">archived</field>
+        </record>
+
+        <record id="operational_note_7" model="classico.operational.note">
+            <field name="note_date" eval="DateTime.now().date()"/>
+            <field name="division">management</field>
+            <field name="urgency">important</field>
+            <field name="description">Meeting evaluasi bulanan dijadwalkan Jumat depan jam 14:00. Semua divisi head hadir.</field>
+            <field name="state">open</field>
+        </record>
+
+        <record id="operational_note_8" model="classico.operational.note">
+            <field name="note_date" eval="(DateTime.now() - timedelta(days=5)).date()"/>
+            <field name="division">floor</field>
+            <field name="urgency">normal</field>
+            <field name="description">Training staff baru (2 orang waiter) sudah selesai. Mulai shift besok.</field>
+            <field name="state">archived</field>
+        </record>
+
+        <record id="operational_note_9" model="classico.operational.note">
+            <field name="note_date" eval="(DateTime.now() - timedelta(days=1)).date()"/>
+            <field name="division">kitchen</field>
+            <field name="urgency">urgent</field>
+            <field name="description">Kulkas penyimpanan daging bermasalah. Temperatur naik ke 10°C. Sudah dipindahkan ke kulkas cadangan.</field>
+            <field name="state">open</field>
+        </record>
+
+        <record id="operational_note_10" model="classico.operational.note">
+            <field name="note_date" eval="DateTime.now().date()"/>
+            <field name="division">bar</field>
+            <field name="urgency">normal</field>
+            <field name="description">Promo buy 1 get 1 coffee berjalan lancar. Penjualan naik 30% hari ini.</field>
+            <field name="state">open</field>
+        </record>
+
+    </data>
+</odoo>

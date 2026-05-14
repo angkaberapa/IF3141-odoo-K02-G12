@@ -17,5 +17,6 @@ access_classico_operational_note_user,classico.operational.note.user,model_class
 access_classico_operational_note_manager,classico.operational.note.manager,model_classico_operational_note,base.group_system,1,1,1,1
 access_classico_evaluation_report_user,classico.evaluation.report.user,model_classico_evaluation_report,base.group_user,1,1,1,0
 access_classico_evaluation_report_manager,classico.evaluation.report.manager,model_classico_evaluation_report,base.group_system,1,1,1,1
+access_classico_evaluation_report_wizard_user,classico.evaluation.report.wizard.user,model_classico_evaluation_report_wizard,base.group_user,1,1,1,1
 access_classico_user_create_wizard_system,classico.user.create.wizard.system,model_classico_user_create_wizard,base.group_system,1,1,1,1
 access_classico_user_role_assignment_wizard_system,classico.user.role.assignment.wizard.system,model_classico_user_role_assignment_wizard,base.group_system,1,1,1,1

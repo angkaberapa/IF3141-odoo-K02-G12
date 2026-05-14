@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- PDF Report Template -->
+    <template id="report_evaluation_document">
+        <t t-call="web.external_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="page">
+                    <main>
+                        <!-- Header -->
+                        <div class="text-center" style="border-bottom: 3px solid #875A7B; padding-bottom: 10px; margin-bottom: 30px;">
+                            <h2 style="color: #875A7B; font-weight: bold; margin: 0;">LAPORAN EVALUASI OPERASIONAL</h2>
+                            <h3 style="color: #666; margin-top: 5px;">Classico Coffee &amp; Bake</h3>
+                        </div>
+
+                        <!-- Report Info -->
+                        <div style="margin-bottom: 30px; background-color: #f8f9fa; padding: 15px; border-radius: 5px;">
+                            <div class="row">
+                                <div class="col-6">
+                                    <p style="margin: 5px 0;"><strong>Nomor Laporan:</strong> <span t-field="o.name"/></p>
+                                    <p style="margin: 5px 0;"><strong>Periode:</strong> 
+                                        <span t-field="o.date_start" t-options='{"widget": "date"}'/> s/d 
+                                        <span t-field="o.date_end" t-options='{"widget": "date"}'/>
+                                    </p>
+                                </div>
+                                <div class="col-6">
+                                    <p style="margin: 5px 0;"><strong>Dibuat Oleh:</strong> <span t-field="o.generated_by.name"/></p>
+                                    <p style="margin: 5px 0;"><strong>Tanggal Generate:</strong> <span t-field="o.generated_at" t-options='{"widget": "datetime"}'/></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary Statistics -->
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #875A7B; border-bottom: 2px solid #875A7B; padding-bottom: 5px; margin-bottom: 15px;">RINGKASAN STATISTIK</h4>
+                            <div class="row" style="margin-bottom: 20px;">
+                                <div class="col-3 text-center" style="border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 5px;">
+                                    <h1 style="color: #28a745; margin: 0;"><span t-field="o.total_reservations"/></h1>
+                                    <p style="margin: 5px 0; color: #666;">Total Reservasi</p>
+                                </div>
+                                <div class="col-3 text-center" style="border: 2px solid #dc3545; border-radius: 5px; padding: 15px; margin: 5px;">
+                                    <h1 style="color: #dc3545; margin: 0;"><span t-field="o.total_complaints"/></h1>
+                                    <p style="margin: 5px 0; color: #666;">Total Keluhan</p>
+                                </div>
+                                <div class="col-3 text-center" style="border: 2px solid #007bff; border-radius: 5px; padding: 15px; margin: 5px;">
+                                    <h1 style="color: #007bff; margin: 0;"><span t-field="o.total_shift_reports"/></h1>
+                                    <p style="margin: 5px 0; color: #666;">Laporan Shift</p>
+                                </div>
+                                <div class="col-3 text-center" style="border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 5px;">
+                                    <h1 style="color: #ffc107; margin: 0;"><span t-field="o.total_operational_notes"/></h1>
+                                    <p style="margin: 5px 0; color: #666;">Catatan Operasional</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Metrics -->
+                        <div style="margin-bottom: 30px; background-color: #fff3e0; padding: 15px; border-radius: 5px; border: 2px solid #ff9800;">
+                            <h4 style="color: #ff9800; margin-top: 0; margin-bottom: 15px;">INSIGHT MENDALAM</h4>
+                            <div class="row">
+                                <div class="col-4">
+                                    <p style="margin: 5px 0; color: #666; font-size: 12px;">Rata-rata Penyelesaian Keluhan</p>
+                                    <h3 style="color: #28a745; margin: 5px 0;"><span t-field="o.average_resolution_time"/> jam</h3>
+                                </div>
+                                <div class="col-4">
+                                    <p style="margin: 5px 0; color: #666; font-size: 12px;">Tingkat Keluhan</p>
+                                    <h3 style="color: #dc3545; margin: 5px 0;"><span t-field="o.complaint_rate"/>%</h3>
+                                    <p style="margin: 0; color: #999; font-size: 11px;">(per 100 reservasi)</p>
+                                </div>
+                                <div class="col-4">
+                                    <p style="margin: 5px 0; color: #666; font-size: 12px;">Kategori Keluhan Terbanyak</p>
+                                    <h3 style="color: #ff9800; margin: 5px 0;"><span t-field="o.top_complaint_category"/></h3>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 15px;">
+                                <div class="col-6">
+                                    <p style="margin: 5px 0; color: #666; font-size: 12px;">Divisi Paling Aktif</p>
+                                    <h3 style="color: #007bff; margin: 5px 0;"><span t-field="o.most_active_division"/></h3>
+                                </div>
+                                <div class="col-6">
+                                    <p style="margin: 5px 0; color: #666; font-size: 12px;">Hari Tersibuk</p>
+                                    <h3 style="color: #9c27b0; margin: 5px 0;"><span t-field="o.peak_reservation_day"/></h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Breakdowns -->
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #875A7B; border-bottom: 2px solid #875A7B; padding-bottom: 5px; margin-bottom: 15px;">DETAIL ANALISIS</h4>
+                            
+                            <!-- Reservations -->
+                            <div style="margin-bottom: 20px; padding: 15px; background-color: #e8f5e9; border-left: 4px solid #28a745;">
+                                <h5 style="color: #28a745; margin-top: 0;">Reservasi</h5>
+                                <p style="margin: 5px 0; color: #333; white-space: pre-line;"><span t-field="o.reservation_summary"/></p>
+                            </div>
+
+                            <!-- Complaints -->
+                            <div style="margin-bottom: 20px; padding: 15px; background-color: #ffebee; border-left: 4px solid #dc3545;">
+                                <h5 style="color: #dc3545; margin-top: 0;">Keluhan</h5>
+                                <p style="margin: 5px 0; color: #333; white-space: pre-line;"><span t-field="o.complaint_summary"/></p>
+                            </div>
+
+                            <!-- Shifts -->
+                            <div style="margin-bottom: 20px; padding: 15px; background-color: #e3f2fd; border-left: 4px solid #007bff;">
+                                <h5 style="color: #007bff; margin-top: 0;">Laporan Shift</h5>
+                                <p style="margin: 5px 0; color: #333; white-space: pre-line;"><span t-field="o.shift_summary"/></p>
+                            </div>
+                        </div>
+
+                        <!-- Footer Note -->
+                        <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
+                            <p style="margin: 5px 0; font-size: 12px;">Laporan ini digenerate otomatis oleh Sistem Operasional Classico Coffee &amp; Bake</p>
+                            <p style="margin: 5px 0; font-size: 12px;">Untuk informasi lebih lanjut, hubungi manajemen</p>
+                        </div>
+                    </main>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report Action -->
+    <record id="action_report_evaluation" model="ir.actions.report">
+        <field name="name">Laporan Evaluasi PDF</field>
+        <field name="model">classico.evaluation.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">Sistem-Operasional-dan-Reservasi-Terintegrasi-Classico-Coffee-&amp;-Bake.report_evaluation_document</field>
+        <field name="report_file">Sistem-Operasional-dan-Reservasi-Terintegrasi-Classico-Coffee-&amp;-Bake.report_evaluation_document</field>
+        <field name="binding_model_id" ref="model_classico_evaluation_report"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Laporan_Evaluasi_%s' % (object.name)</field>
+    </record>
+</odoo>

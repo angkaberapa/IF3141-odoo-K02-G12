@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_evaluation_report_wizard_form" model="ir.ui.view">
+        <field name="name">classico.evaluation.report.wizard.form</field>
+        <field name="model">classico.evaluation.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Laporan Evaluasi">
+                <group>
+                    <group>
+                        <field name="report_period" widget="radio"/>
+                    </group>
+                </group>
+                <group>
+                    <group>
+                        <field name="date_start" readonly="report_period != 'custom'"/>
+                    </group>
+                    <group>
+                        <field name="date_end" readonly="report_period != 'custom'"/>
+                    </group>
+                </group>
+                
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="fa fa-info-circle"/> 
+                    <strong>Info:</strong> Laporan akan berisi statistik reservasi, keluhan, shift, dan catatan operasional dalam periode yang dipilih.
+                </div>
+                
+                <footer>
+                    <button string="Generate Laporan" 
+                            type="object" 
+                            name="action_generate_report" 
+                            class="btn-primary"
+                            icon="fa-check"/>
+                    <button string="Batal" special="cancel" class="btn-default"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_evaluation_report_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Laporan Evaluasi</field>
+        <field name="res_model">classico.evaluation.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_evaluation_report_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu Item for Wizard -->
+    <menuitem id="menu_classico_evaluation_wizard"
+              name="Generate Laporan Baru"
+              parent="menu_classico_archive"
+              action="action_evaluation_report_wizard"
+              sequence="41"/>
+
+</odoo>
