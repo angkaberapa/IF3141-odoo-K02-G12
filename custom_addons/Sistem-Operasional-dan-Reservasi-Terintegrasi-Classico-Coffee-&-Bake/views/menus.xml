@@ -11,12 +11,6 @@
               parent="menu_classico_root"
               sequence="50"/>
 
-    <!-- Report Parent Menu -->
-    <menuitem id="menu_classico_reports"
-              name="Laporan Evaluasi"
-              parent="menu_classico_archive"
-              sequence="40"/>
-
     <!-- Configuration Parent Menu -->
     <menuitem id="menu_classico_configuration"
               name="Konfigurasi"

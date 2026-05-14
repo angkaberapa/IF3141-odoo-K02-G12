@@ -170,7 +170,7 @@ class ClassicoComplaint(models.Model):
                 delta = record.resolution_datetime - record.incident_datetime
                 record.resolution_time = delta.total_seconds() / 3600.0  # Convert to hours
             else:
-                record.resolution_time = 0.0
+                record.resolution_time = False
 
     @api.depends('title', 'name')
     def _compute_display_title(self):
