@@ -89,36 +89,434 @@
             <field name="state">available</field>
         </record>
 
+        <record id="table_9" model="classico.table">
+            <field name="name">9</field>
+            <field name="capacity">4</field>
+            <field name="floor_section">indoor</field>
+            <field name="state">available</field>
+            <field name="notes">Meja pojok</field>
+        </record>
+
+        <record id="table_10" model="classico.table">
+            <field name="name">10</field>
+            <field name="capacity">6</field>
+            <field name="floor_section">outdoor</field>
+            <field name="state">available</field>
+            <field name="notes">Outdoor view bagus</field>
+        </record>
+
         <!-- Sample Reservations -->
-        <record id="reservation_1" model="classico.reservation">
-            <field name="customer_name">Budi Santoso</field>
+
+        <!-- HARI INI - 5 Reservasi -->
+        <record id="reservation_today_1" model="classico.reservation">
+            <field name="customer_name">Dewi Kartika</field>
             <field name="customer_phone">081234567890</field>
-            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
-            <field name="reservation_time">18.5</field>
+            <field name="reservation_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">9.0</field>
+            <field name="duration_hours">2.0</field>
+            <field name="guest_count">2</field>
+            <field name="special_request">Meja dekat jendela, breakfast meeting</field>
+            <field name="state">arrived</field>
+            <field name="table_id" ref="table_1"/>
+        </record>
+
+        <record id="reservation_today_2" model="classico.reservation">
+            <field name="customer_name">PT Digital Solutions</field>
+            <field name="customer_phone">082345678901</field>
+            <field name="reservation_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">12.0</field>
+            <field name="duration_hours">2.5</field>
+            <field name="guest_count">6</field>
+            <field name="special_request">Business lunch, butuh area tenang</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_4"/>
+        </record>
+
+        <record id="reservation_today_3" model="classico.reservation">
+            <field name="customer_name">Rina n Friends</field>
+            <field name="customer_phone">083456789012</field>
+            <field name="reservation_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">15.5</field>
+            <field name="duration_hours">2.0</field>
             <field name="guest_count">4</field>
-            <field name="special_request">Meja dekat jendela</field>
+            <field name="special_request">Afternoon tea session</field>
             <field name="state">confirmed</field>
             <field name="table_id" ref="table_2"/>
         </record>
 
-        <record id="reservation_2" model="classico.reservation">
-            <field name="customer_name">Siti Nurhaliza</field>
-            <field name="customer_phone">082345678901</field>
+        <record id="reservation_today_4" model="classico.reservation">
+            <field name="customer_name">Bambang Wijaya</field>
+            <field name="customer_phone">084567890123</field>
             <field name="reservation_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
-            <field name="reservation_time">12.0</field>
+            <field name="reservation_time">18.0</field>
+            <field name="duration_hours">2.0</field>
             <field name="guest_count">2</field>
+            <field name="special_request">Dinner for two, romantic setting</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_5"/>
+        </record>
+
+        <record id="reservation_today_5" model="classico.reservation">
+            <field name="customer_name">Family Hartono</field>
+            <field name="customer_phone">085678901234</field>
+            <field name="reservation_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">19.5</field>
+            <field name="duration_hours">2.5</field>
+            <field name="guest_count">8</field>
+            <field name="special_request">Family dinner, ada 2 anak kecil</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_7"/>
+        </record>
+
+        <!-- BESOK - 5 Reservasi -->
+        <record id="reservation_tomorrow_1" model="classico.reservation">
+            <field name="customer_name">Siti Nurhaliza</field>
+            <field name="customer_phone">086789012345</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">8.5</field>
+            <field name="duration_hours">1.5</field>
+            <field name="guest_count">1</field>
+            <field name="special_request">Solo breakfast, butuh wifi cepat</field>
+            <field name="state">draft</field>
+            <field name="table_id" ref="table_8"/>
+        </record>
+
+        <record id="reservation_tomorrow_2" model="classico.reservation">
+            <field name="customer_name">Rudi n Team</field>
+            <field name="customer_phone">087890123456</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">11.0</field>
+            <field name="duration_hours">2.0</field>
+            <field name="guest_count">4</field>
+            <field name="special_request">Team meeting, butuh meja besar</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_9"/>
+        </record>
+
+        <record id="reservation_tomorrow_3" model="classico.reservation">
+            <field name="customer_name">Linda Kusuma</field>
+            <field name="customer_phone">088901234567</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">13.5</field>
+            <field name="duration_hours">1.5</field>
+            <field name="guest_count">2</field>
+            <field name="special_request">Client meeting, butuh privacy</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_1"/>
+        </record>
+
+        <record id="reservation_tomorrow_4" model="classico.reservation">
+            <field name="customer_name">Agus Prasetyo</field>
+            <field name="customer_phone">089012345678</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">17.0</field>
+            <field name="duration_hours">2.0</field>
+            <field name="guest_count">3</field>
+            <field name="special_request">Casual dinner</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_2"/>
+        </record>
+
+        <record id="reservation_tomorrow_5" model="classico.reservation">
+            <field name="customer_name">Wulan n Friends</field>
+            <field name="customer_phone">081123456789</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">20.0</field>
+            <field name="duration_hours">2.5</field>
+            <field name="guest_count">6</field>
+            <field name="special_request">Birthday celebration, butuh kue ultah</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_10"/>
+        </record>
+
+        <!-- LUSA (2 Hari Lagi) - 5 Reservasi -->
+        <record id="reservation_day3_1" model="classico.reservation">
+            <field name="customer_name">Ibu Sari</field>
+            <field name="customer_phone">082234567890</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">10.0</field>
+            <field name="duration_hours">2.0</field>
+            <field name="guest_count">4</field>
+            <field name="special_request">Arisan kelompok, butuh area nyaman</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_9"/>
+        </record>
+
+        <record id="reservation_day3_2" model="classico.reservation">
+            <field name="customer_name">CV Mandiri Sejahtera</field>
+            <field name="customer_phone">083345678901</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">12.5</field>
+            <field name="duration_hours">2.0</field>
+            <field name="guest_count">5</field>
+            <field name="special_request">Interview session, butuh meja agak privat</field>
             <field name="state">draft</field>
         </record>
 
-        <record id="reservation_3" model="classico.reservation">
-            <field name="customer_name">Ahmad Rahman</field>
-            <field name="customer_phone">083456789012</field>
+        <record id="reservation_day3_3" model="classico.reservation">
+            <field name="customer_name">Doni Pradipta</field>
+            <field name="customer_phone">084456789012</field>
             <field name="reservation_date" eval="(DateTime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
-            <field name="reservation_time">19.0</field>
+            <field name="reservation_time">16.0</field>
+            <field name="duration_hours">1.5</field>
+            <field name="guest_count">2</field>
+            <field name="special_request">Coffee date</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_8"/>
+        </record>
+
+        <record id="reservation_day3_4" model="classico.reservation">
+            <field name="customer_name">Keluarga Susanto</field>
+            <field name="customer_phone">085567890123</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">18.5</field>
+            <field name="duration_hours">2.5</field>
             <field name="guest_count">6</field>
-            <field name="special_request">High chair untuk anak</field>
+            <field name="special_request">Family gathering, ada lansia</field>
             <field name="state">confirmed</field>
             <field name="table_id" ref="table_4"/>
+        </record>
+
+        <record id="reservation_day3_5" model="classico.reservation">
+            <field name="customer_name">Anton n Partner</field>
+            <field name="customer_phone">086678901234</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">20.5</field>
+            <field name="duration_hours">2.0</field>
+            <field name="guest_count">2</field>
+            <field name="special_request">Late dinner, prefer outdoor</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_5"/>
+        </record>
+
+        <!-- 3 HARI LAGI - 5 Reservasi -->
+        <record id="reservation_day4_1" model="classico.reservation">
+            <field name="customer_name">Startup Hub</field>
+            <field name="customer_phone">087789012345</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">9.5</field>
+            <field name="duration_hours">3.0</field>
+            <field name="guest_count">8</field>
+            <field name="special_request">Workshop session, butuh WiFi kencang dan stopkontak</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_7"/>
+        </record>
+
+        <record id="reservation_day4_2" model="classico.reservation">
+            <field name="customer_name">Ny. Melinda</field>
+            <field name="customer_phone">088890123456</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">13.0</field>
+            <field name="duration_hours">1.5</field>
+            <field name="guest_count">3</field>
+            <field name="special_request">Lunch dengan klien</field>
+            <field name="state">draft</field>
+        </record>
+
+        <record id="reservation_day4_3" model="classico.reservation">
+            <field name="customer_name">Yoga Saputra</field>
+            <field name="customer_phone">089901234567</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">15.0</field>
+            <field name="duration_hours">2.0</field>
+            <field name="guest_count">1</field>
+            <field name="special_request">Work from cafe, butuh colokan listrik</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_8"/>
+        </record>
+
+        <record id="reservation_day4_4" model="classico.reservation">
+            <field name="customer_name">Book Club Jakarta</field>
+            <field name="customer_phone">081012345678</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">17.5</field>
+            <field name="duration_hours">2.5</field>
+            <field name="guest_count">5</field>
+            <field name="special_request">Monthly book club meeting</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_10"/>
+        </record>
+
+        <record id="reservation_day4_5" model="classico.reservation">
+            <field name="customer_name">Farhan n Keluarga</field>
+            <field name="customer_phone">082123456789</field>
+            <field name="reservation_date" eval="(DateTime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+            <field name="reservation_time">19.0</field>
+            <field name="duration_hours">2.0</field>
+            <field name="guest_count">4</field>
+            <field name="special_request">Weekend dinner, ada vegetarian</field>
+            <field name="state">confirmed</field>
+            <field name="table_id" ref="table_9"/>
+        </record>
+
+        <!-- ================================================ -->
+        <!-- TABLE ALLOCATIONS - Auto-generated from reservations -->
+        <!-- ================================================ -->
+        
+        <!-- TODAY allocations -->
+        <record id="allocation_today_1" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_today_1"/>
+            <field name="table_id" ref="table_1"/>
+            <field name="seats_used">2</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(hours=9)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(hours=11)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_today_2" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_today_2"/>
+            <field name="table_id" ref="table_4"/>
+            <field name="seats_used">6</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(hours=14, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_today_3" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_today_3"/>
+            <field name="table_id" ref="table_2"/>
+            <field name="seats_used">4</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(hours=15, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(hours=17, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_today_4" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_today_4"/>
+            <field name="table_id" ref="table_5"/>
+            <field name="seats_used">2</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(hours=18)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(hours=20)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_today_5" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_today_5"/>
+            <field name="table_id" ref="table_7"/>
+            <field name="seats_used">8</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(hours=19, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(hours=22)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <!-- TOMORROW allocations -->
+        <record id="allocation_tomorrow_1" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_tomorrow_1"/>
+            <field name="table_id" ref="table_8"/>
+            <field name="seats_used">1</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=1, hours=8, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=1, hours=10)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_tomorrow_2" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_tomorrow_2"/>
+            <field name="table_id" ref="table_9"/>
+            <field name="seats_used">4</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=1, hours=11)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=1, hours=13)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_tomorrow_3" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_tomorrow_3"/>
+            <field name="table_id" ref="table_1"/>
+            <field name="seats_used">2</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=1, hours=13, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=1, hours=15)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_tomorrow_4" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_tomorrow_4"/>
+            <field name="table_id" ref="table_2"/>
+            <field name="seats_used">3</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=1, hours=17)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=1, hours=19)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_tomorrow_5" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_tomorrow_5"/>
+            <field name="table_id" ref="table_10"/>
+            <field name="seats_used">6</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=1, hours=20)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=1, hours=22, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <!-- DAY +2 allocations -->
+        <record id="allocation_day3_1" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_day3_1"/>
+            <field name="table_id" ref="table_9"/>
+            <field name="seats_used">4</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=2, hours=10)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=2, hours=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_day3_3" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_day3_3"/>
+            <field name="table_id" ref="table_8"/>
+            <field name="seats_used">2</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=2, hours=16)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=2, hours=17, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_day3_4" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_day3_4"/>
+            <field name="table_id" ref="table_4"/>
+            <field name="seats_used">6</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=2, hours=18, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=2, hours=21)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_day3_5" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_day3_5"/>
+            <field name="table_id" ref="table_5"/>
+            <field name="seats_used">2</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=2, hours=20, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=2, hours=22, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <!-- DAY +3 allocations -->
+        <record id="allocation_day4_1" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_day4_1"/>
+            <field name="table_id" ref="table_7"/>
+            <field name="seats_used">8</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=3, hours=9, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=3, hours=12, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_day4_3" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_day4_3"/>
+            <field name="table_id" ref="table_8"/>
+            <field name="seats_used">1</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=3, hours=15)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=3, hours=17)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_day4_4" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_day4_4"/>
+            <field name="table_id" ref="table_10"/>
+            <field name="seats_used">5</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=3, hours=17, minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=3, hours=20)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
+        </record>
+
+        <record id="allocation_day4_5" model="classico.table.allocation">
+            <field name="reservation_id" ref="reservation_day4_5"/>
+            <field name="table_id" ref="table_9"/>
+            <field name="seats_used">4</field>
+            <field name="start_datetime" eval="(DateTime.now() + timedelta(days=3, hours=19)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="end_datetime" eval="(DateTime.now() + timedelta(days=3, hours=21)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">active</field>
         </record>
 
         <!-- Sample Shift Reports -->
