@@ -2,6 +2,11 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from datetime import timedelta
+
+
+RESERVATION_BUFFER_HOURS = 1.0
+RESERVATION_BLOCKING_STATES = ['draft', 'confirmed', 'arrived']
 
 
 class ClassicoTableAllocation(models.Model):
@@ -52,13 +57,14 @@ class ClassicoTableAllocation(models.Model):
     @api.constrains('table_id', 'start_datetime', 'end_datetime', 'state')
     def _check_no_overlap(self):
         for record in self.filtered(lambda allocation: allocation.state == 'active'):
+            buffer_delta = timedelta(hours=RESERVATION_BUFFER_HOURS)
             overlapping = self.search_count([
                 ('id', '!=', record.id),
                 ('table_id', '=', record.table_id.id),
                 ('state', '=', 'active'),
-                ('start_datetime', '<', record.end_datetime),
-                ('end_datetime', '>', record.start_datetime),
-                ('reservation_id.state', 'in', ['confirmed', 'arrived']),
+                ('start_datetime', '<', record.end_datetime + buffer_delta),
+                ('end_datetime', '>', record.start_datetime - buffer_delta),
+                ('reservation_id.state', 'in', RESERVATION_BLOCKING_STATES),
             ])
             if overlapping:
-                raise ValidationError('Meja sudah dialokasikan pada rentang waktu tersebut')
+                raise ValidationError('Meja sudah dialokasikan pada rentang waktu tersebut atau jeda minimal 1 jam belum terpenuhi')
